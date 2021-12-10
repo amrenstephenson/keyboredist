@@ -3,14 +3,14 @@ module.exports = {
         browser: true,
         commonjs: true,
         es2021: true,
-        node: true,
+        node: true
     },
     extends: ['standard'],
     parserOptions: {
-        ecmaVersion: 12,
+        ecmaVersion: 12
     },
     rules: {
         semi: [2, 'always'],
-        indent: 'off',
-    },
+        indent: 'off'
+    }
 };
