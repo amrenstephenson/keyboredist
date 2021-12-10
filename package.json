@@ -1,19 +1,41 @@
 {
-    "name": "keyboredist",
-    "version": "1.0.0",
-    "description": "",
-    "main": "app.js",
-    "scripts": {
-        "test": "echo \"Error: no test specified\" && exit 1"
-    },
-    "author": "",
-    "license": "",
-    "dependencies": {
-        "express": "^4.17.1"
-    },
-    "devDependencies": {
-        "eslint": "^8.4.1",
-        "jest": "^27.4.4",
-        "nodemon": "^2.0.15"
+  "name": "keyboredist",
+  "version": "1.0.0",
+  "description": "",
+  "main": "app.js",
+  "husky": {
+    "hooks": {
+      "pre-commit": "lint-staged"
     }
+  },
+  "lint-staged": {
+    "**/*.js": [
+      "eslint --fix",
+      "git add"
+    ]
+  },
+  "scripts": {
+    "pretest": "eslint *.js",
+    "test": "jest",
+    "start": "nodemon server.js"
+  },
+  "author": "",
+  "license": "",
+  "dependencies": {
+    "express": "^4.17.1"
+  },
+  "devDependencies": {
+    "eslint": "^7.32.0",
+    "eslint-config-prettier": "^8.3.0",
+    "eslint-config-standard": "^16.0.3",
+    "eslint-plugin-import": "^2.25.3",
+    "eslint-plugin-node": "^11.1.0",
+    "eslint-plugin-prettier": "^4.0.0",
+    "eslint-plugin-promise": "^5.2.0",
+    "husky": "^7.0.4",
+    "jest": "^27.4.4",
+    "lint-staged": "^12.1.2",
+    "nodemon": "^2.0.15",
+    "prettier": "2.5.1"
+  }
 }
