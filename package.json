@@ -4,8 +4,8 @@
   "description": "",
   "main": "app.js",
   "scripts": {
-    "pretest": "eslint *.js",
-    "test": "jest",
+    "pretest": "eslint *.js --max-warnings=0",
+    "test": "jest --passWithNoTests",
     "lint-staged": "lint-staged --config lint-staged.js",
     "husky-install": "husky install",
     "start": "nodemon server.js"
