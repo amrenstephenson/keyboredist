@@ -3,21 +3,11 @@
   "version": "1.0.0",
   "description": "",
   "main": "app.js",
-  "husky": {
-    "hooks": {
-      "pre-commit": "lint-staged"
-    }
-  },
-  "lint-staged": {
-    "**/*.js": [
-      "eslint --fix",
-      "git add"
-    ]
-  },
   "scripts": {
     "pretest": "eslint *.js",
     "test": "jest",
     "lint-staged": "lint-staged --config lint-staged.js",
+    "husky-install": "husky install",
     "start": "nodemon server.js"
   },
   "author": "",
