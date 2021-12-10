@@ -17,6 +17,7 @@
   "scripts": {
     "pretest": "eslint *.js",
     "test": "jest",
+    "lint-staged": "lint-staged --config lint-staged.js",
     "start": "nodemon server.js"
   },
   "author": "",
