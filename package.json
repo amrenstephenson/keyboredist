@@ -1,29 +1,30 @@
 {
-  "name": "keyboredist",
-  "version": "1.0.0",
-  "description": "",
-  "main": "app.js",
-  "scripts": {
-    "pretest": "eslint *.js --max-warnings=0",
-    "test": "jest --passWithNoTests",
-    "lint-staged": "lint-staged --config lint-staged.js",
-    "husky-install": "husky install",
-    "start": "nodemon server.js"
-  },
-  "author": "",
-  "license": "",
-  "dependencies": {
-    "express": "^4.17.1"
-  },
-  "devDependencies": {
-    "eslint": "^7.32.0",
-    "eslint-config-standard": "^16.0.3",
-    "eslint-plugin-import": "^2.25.3",
-    "eslint-plugin-node": "^11.1.0",
-    "eslint-plugin-promise": "^5.2.0",
-    "husky": "^7.0.4",
-    "jest": "^27.4.4",
-    "lint-staged": "^12.1.2",
-    "nodemon": "^2.0.15"
-  }
+	"name": "keyboredist",
+	"version": "1.0.0",
+	"description": "",
+	"main": "app.js",
+	"scripts": {
+		"pretest": "eslint *.js --max-warnings=0",
+		"test": "jest --passWithNoTests",
+		"lint-staged": "lint-staged --config lint-staged.js",
+		"husky-install": "husky install",
+		"start": "nodemon server.js"
+	},
+	"author": "",
+	"license": "",
+	"dependencies": {
+		"express": "^4.17.1"
+	},
+	"devDependencies": {
+		"eslint": "^7.32.0",
+		"eslint-config-standard": "^16.0.3",
+		"eslint-plugin-import": "^2.25.3",
+		"eslint-plugin-node": "^11.1.0",
+		"eslint-plugin-promise": "^5.2.0",
+		"husky": "^7.0.4",
+		"jest": "^27.4.4",
+		"lint-staged": "^12.1.2",
+		"nodemon": "^2.0.15",
+		"prettier": "^2.5.1"
+	}
 }

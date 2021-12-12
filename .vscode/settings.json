@@ -4,5 +4,8 @@
   },
   "eslint.validate": ["javascript"],
   "editor.defaultFormatter": "rvest.vs-code-prettier-eslint",
-  "eslint.format.enable": true
+  "eslint.format.enable": true,
+  "[json]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode"
+  }
 }
