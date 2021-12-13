@@ -1,62 +1,68 @@
 const express = require('express');
 const app = express();
-const users = require('./users');
+const entities = require('./entities');
+
+const UNKNOWN_ERR_MESSAGE = 'Unknown internal server error.';
 
 app.use(express.static('client'));
 app.use(express.json());
 
-// Get list of existing users.
-app.get('/api/users', async function (req, resp) {
-	const userList = await users.getList();
-	resp.json(userList);
-});
+registerRoutes(new entities.Entity('user', 'users', './json/users.json'));
+registerRoutes(new entities.Entity('keyboard', 'keyboards', './json/keyboards.json'));
 
-// Get existing user with userID.
-app.get('/api/users/:id', async function (req, resp) {
-	try {
-		const user = await users.get(req.params.id);
-		resp.json(user);
-	} catch (err) {
-		if (err instanceof users.UserNotFoundError) {
-			resp.status(500).send('User not found');
-		} else {
-			resp.status(500).send('Unknown internal server error');
+function registerRoutes (entity) {
+	// Get list of existing entities.
+	app.get(`/api/${entity.namePlural}`, async function (req, resp) {
+		const entityList = await entity.getList();
+		resp.json(entityList);
+	});
+
+	// Get existing entity with given ID.
+	app.get(`/api/${entity.namePlural}/:id`, async function (req, resp) {
+		try {
+			resp.json(await entity.get(req.params.id));
+		} catch (err) {
+			console.log(err);
+			if (err instanceof entities.EntityNotFoundError) {
+				resp.status(500).send(`${entity.nameSingularCap} not found.`);
+			} else {
+				resp.status(500).send(UNKNOWN_ERR_MESSAGE);
+			}
 		}
-	}
-});
+	});
 
-// Add new user with userID.
-app.put('/api/users/', async function (req, resp) {
-	try {
-		await users.create(req.body.name);
-		resp.send('Success');
-	} catch (err) {
-		console.log(err);
-		if (err instanceof users.UserIDGenerationError) {
-			resp.status(500).send('Error generating user ID, please try again.');
-		} else {
-			resp.status(500).send('Unknown internal server error');
+	// Add new entity.
+	app.put(`/api/${entity.namePlural}`, async function (req, resp) {
+		try {
+			await entity.create(req.body.name);
+			resp.send('Success');
+		} catch (err) {
+			if (err instanceof entities.EntityIDGenerationError) {
+				resp.status(500).send(`Error generating ${entity.nameSingular} ID, please try again.`);
+			} else {
+				resp.status(500).send(UNKNOWN_ERR_MESSAGE);
+			}
 		}
-	}
-});
+	});
 
-// Delete user with userID.
-app.delete('/api/users/:id', async function (req, resp) {
-	try {
-		await users.remove(req.params.id);
-		resp.send('Success');
-	} catch (err) {
-		if (err instanceof users.UserNotFoundError) {
-			resp.status(500).send('User not found');
-		} else {
-			resp.status(500).send('Unknown internal server error');
+	// Delete entity with given ID.
+	app.delete(`/api/${entity.namePlural}/:id`, async function (req, resp) {
+		try {
+			await entity.remove(req.params.id);
+			resp.send('Success');
+		} catch (err) {
+			if (err instanceof entities.EntityNotFoundError) {
+				resp.status(500).send(`${entity.nameSingularCap} not found.`);
+			} else {
+				resp.status(500).send(UNKNOWN_ERR_MESSAGE);
+			}
 		}
-	}
-});
+	});
 
-// Update existing user with userID.
-app.post('/api/users/:id', async function (req, resp) {
+	// Update existing entity with given ID.
+	app.post(`/api/${entity.namePlural}/:id`, async function (req, resp) {
 
-});
+	});
+}
 
 module.exports = app;
