@@ -7,13 +7,10 @@ const UNKNOWN_ERR_MESSAGE = 'Unknown internal server error.';
 app.use(express.static('client'));
 app.use(express.json());
 
-let suffix = '';
-if (process.env.JEST_WORKER_ID !== undefined) {
-	suffix = '-test';
-}
+const isTesting = process.env.JEST_WORKER_ID !== undefined;
 
-registerRoutes(new entities.Entity('user', 'users', `./json/users${suffix}.json`));
-registerRoutes(new entities.Entity('keyboard', 'keyboards', `./json/keyboards${suffix}.json`));
+registerRoutes(new entities.Entity('user', 'users', isTesting));
+registerRoutes(new entities.Entity('keyboard', 'keyboards', isTesting));
 
 // TODO: Make single error handling function.
 function registerRoutes (entity) {

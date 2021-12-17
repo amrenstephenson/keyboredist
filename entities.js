@@ -20,20 +20,22 @@ class EntityIDGenerationError extends Error {
 }
 
 class Entity {
-	constructor (nameSingular, namePlural, filePath) {
+	constructor (nameSingular, namePlural, isTesting) {
 		this.nameSingular = nameSingular;
 		this.namePlural = namePlural;
-		this.filePath = filePath;
-
-		this.nameSingularCap = capitalizeFirst(nameSingular);
-		this.namePluralCap = capitalizeFirst(namePlural);
 
 		function capitalizeFirst (str) {
 			return str.substring(0, 1).toUpperCase() + str.substring(1);
 		}
 
-		if (!fs.existsSync(filePath)) {
-			fs.writeFileSync(filePath, '{"entities":[]}', (err) => {
+		this.nameSingularCap = capitalizeFirst(nameSingular);
+		this.namePluralCap = capitalizeFirst(namePlural);
+
+		const suffix = isTesting ? '-test' : '';
+		this.filePath = `./json/${namePlural}${suffix}.json`;
+
+		if (!fs.existsSync(this.filePath)) {
+			fs.writeFileSync(this.filePath, '{"entities":[]}', (err) => {
 				if (err) throw err;
 			});
 		}
@@ -83,6 +85,24 @@ class Entity {
 			if (entity.id === id) {
 				foundEntity = true;
 				entityList.entities.splice(index, 1);
+			}
+		});
+
+		if (!foundEntity) {
+			throw new EntityNotFoundError();
+		}
+
+		await this.updateEntityListFile(entityList);
+	}
+
+	async update (id) {
+		const entityList = await this.getList();
+		let foundEntity = false;
+
+		entityList.entities.forEach((entity, index) => {
+			if (entity.id === id) {
+				foundEntity = true;
+				// Do updating here.
 			}
 		});
 
