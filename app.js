@@ -7,13 +7,23 @@ const UNKNOWN_ERR_MESSAGE = 'Unknown internal server error.';
 app.use(express.static('client'));
 app.use(express.json());
 
-registerRoutes(new entities.Entity('user', 'users', './json/users.json'));
-registerRoutes(new entities.Entity('keyboard', 'keyboards', './json/keyboards.json'));
+let suffix = '';
+if (process.env.JEST_WORKER_ID !== undefined) {
+	suffix = '-test';
+}
 
+registerRoutes(new entities.Entity('user', 'users', `./json/users${suffix}.json`));
+registerRoutes(new entities.Entity('keyboard', 'keyboards', `./json/keyboards${suffix}.json`));
+
+// TODO: Make single error handling function.
 function registerRoutes (entity) {
 	// Get list of existing entities.
 	app.get(`/api/${entity.namePlural}`, async function (req, resp) {
-		resp.json(await entity.getList());
+		try {
+			resp.json(await entity.getList());
+		} catch (err) {
+			handleError(err, entity, resp);
+		}
 	});
 
 	// Get existing entity with given ID.
@@ -21,25 +31,16 @@ function registerRoutes (entity) {
 		try {
 			resp.json(await entity.get(req.params.id));
 		} catch (err) {
-			if (err instanceof entities.EntityNotFoundError) {
-				resp.status(500).send(`${entity.nameSingularCap} not found.`);
-			} else {
-				resp.status(500).send(UNKNOWN_ERR_MESSAGE);
-			}
+			handleError(err, entity, resp);
 		}
 	});
 
 	// Add new entity.
 	app.put(`/api/${entity.namePlural}`, async function (req, resp) {
 		try {
-			await entity.create(req.body.name);
-			resp.send('Success.');
+			resp.send(await entity.create(req.body.name));
 		} catch (err) {
-			if (err instanceof entities.EntityIDGenerationError) {
-				resp.status(500).send(`Error generating ${entity.nameSingular} ID, please try again.`);
-			} else {
-				resp.status(500).send(UNKNOWN_ERR_MESSAGE);
-			}
+			handleError(err, entity, resp);
 		}
 	});
 
@@ -49,18 +50,29 @@ function registerRoutes (entity) {
 			await entity.remove(req.params.id);
 			resp.send('Success.');
 		} catch (err) {
-			if (err instanceof entities.EntityNotFoundError) {
-				resp.status(500).send(`${entity.nameSingularCap} not found.`);
-			} else {
-				resp.status(500).send(UNKNOWN_ERR_MESSAGE);
-			}
+			handleError(err, entity, resp);
 		}
 	});
 
 	// Update existing entity with given ID.
 	app.post(`/api/${entity.namePlural}/:id`, async function (req, resp) {
-
+		try {
+			await entity.update(req.params.id, req.body);
+			resp.send('Success.');
+		} catch (err) {
+			handleError(err, entity, resp);
+		}
 	});
+}
+
+function handleError (err, entity, resp) {
+	if (err instanceof entities.EntityNotFoundError) {
+		resp.status(404).send(`${entity.nameSingularCap} not found.`);
+	} else if (err instanceof entities.EntityIDGenerationError) {
+		resp.status(500).send(`Error generating ${entity.nameSingular} ID, please try again.`);
+	} else {
+		resp.status(500).send(UNKNOWN_ERR_MESSAGE);
+	}
 }
 
 module.exports = app;

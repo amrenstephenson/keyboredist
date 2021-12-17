@@ -20,10 +20,10 @@ class EntityIDGenerationError extends Error {
 }
 
 class Entity {
-	constructor (nameSingular, namePlural, fileName) {
+	constructor (nameSingular, namePlural, filePath) {
 		this.nameSingular = nameSingular;
 		this.namePlural = namePlural;
-		this.fileName = fileName;
+		this.filePath = filePath;
 
 		this.nameSingularCap = capitalizeFirst(nameSingular);
 		this.namePluralCap = capitalizeFirst(namePlural);
@@ -31,10 +31,16 @@ class Entity {
 		function capitalizeFirst (str) {
 			return str.substring(0, 1).toUpperCase() + str.substring(1);
 		}
+
+		if (!fs.existsSync(filePath)) {
+			fs.writeFileSync(filePath, '{"entities":[]}', (err) => {
+				if (err) throw err;
+			});
+		}
 	}
 
 	async getList () {
-		const fileData = await fs.promises.readFile(this.fileName);
+		const fileData = await fs.promises.readFile(this.filePath);
 
 		// If the entity JSON file is empty, initialise it.
 		if (fileData.toString('utf8') === '') {
@@ -52,6 +58,8 @@ class Entity {
 		entityList.entities.push(newEntity);
 
 		await this.updateEntityListFile(entityList);
+
+		return newEntity.id;
 	}
 
 	async get (id) {
@@ -87,7 +95,7 @@ class Entity {
 
 	async updateEntityListFile (entityList) {
 		const jsonData = JSON.stringify(entityList);
-		await fs.promises.writeFile(this.fileName, jsonData);
+		await fs.promises.writeFile(this.filePath, jsonData);
 	}
 
 	getUniqueEntityID (entityList) {
