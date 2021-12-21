@@ -9,16 +9,16 @@ describe('Test the user part of the API.', () => {
 			.expect('Content-type', /json/);
 	});
 
-	test('PUT /api/users succeeds and returns ID, then DELETE /api/users/:id succeeds in removing user with ID.', () => {
+	test('POST /api/users succeeds and returns ID, then DELETE /api/users/:id succeeds in removing user with ID.', () => {
 		const params = { name: 'Test User' };
 		return request(app)
-			.put('/api/users')
+			.post('/api/users')
 			.send(params)
 			.expect(200)
 			.then(res => {
 				return request(app)
 					.delete(`/api/users/${res.text}`)
-					.expect(200);
+					.expect(200); // Note this can fail if create fails! TODO: Add extra test.
 			});
 	});
 

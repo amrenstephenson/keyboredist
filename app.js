@@ -2,15 +2,23 @@ const express = require('express');
 const app = express();
 const entities = require('./entities');
 
-const UNKNOWN_ERR_MESSAGE = 'Unknown internal server error.';
-
 app.use(express.static('client'));
 app.use(express.json());
 
 const isTesting = process.env.JEST_WORKER_ID !== undefined;
 
-registerRoutes(new entities.Entity('user', 'users', isTesting));
-registerRoutes(new entities.Entity('keyboard', 'keyboards', isTesting));
+const users = new entities.Entity('user', 'users', isTesting);
+const keyboards = new entities.Entity('keyboard', 'keyboards', isTesting);
+const comments = new entities.Entity('keyboard', 'keyboards', isTesting);
+
+keyboards.addRelationship(users);
+
+comments.addRelationship(users);
+comments.addRelationship(keyboards);
+
+registerRoutes(users);
+registerRoutes(keyboards);
+registerRoutes(comments);
 
 // TODO: Make single error handling function.
 function registerRoutes (entity) {
@@ -33,7 +41,7 @@ function registerRoutes (entity) {
 	});
 
 	// Add new entity.
-	app.put(`/api/${entity.namePlural}`, async function (req, resp) {
+	app.post(`/api/${entity.namePlural}`, async function (req, resp) {
 		try {
 			resp.send(await entity.create(req.body.name));
 		} catch (err) {
@@ -68,7 +76,7 @@ function handleError (err, entity, resp) {
 	} else if (err instanceof entities.EntityIDGenerationError) {
 		resp.status(500).send(`Error generating ${entity.nameSingular} ID, please try again.`);
 	} else {
-		resp.status(500).send(UNKNOWN_ERR_MESSAGE);
+		resp.status(500).send('Unknown internal server error.');
 	}
 }
 

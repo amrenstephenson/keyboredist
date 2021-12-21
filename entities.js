@@ -32,17 +32,24 @@ class Entity {
 		this.namePluralCap = capitalizeFirst(namePlural);
 
 		const suffix = isTesting ? '-test' : '';
-		this.filePath = `./json/${namePlural}${suffix}.json`;
+		this.path = `./json/${namePlural}${suffix}`;
+		this.listPath = this.path + '.json';
 
-		if (!fs.existsSync(this.filePath)) {
-			fs.writeFileSync(this.filePath, '{"entities":[]}', (err) => {
+		if (!fs.existsSync(this.listPath)) {
+			fs.writeFileSync(this.listPath, '{"entities":[]}', (err) => {
 				if (err) throw err;
 			});
 		}
+
+		this.relationships = [];
+	}
+
+	addRelationship (relatedEntity) {
+		this.relationships.push(relatedEntity);
 	}
 
 	async getList () {
-		const fileData = await fs.promises.readFile(this.filePath);
+		const fileData = await fs.promises.readFile(this.listPath);
 
 		// If the entity JSON file is empty, initialise it.
 		if (fileData.toString('utf8') === '') {
@@ -56,10 +63,11 @@ class Entity {
 	async create (name) {
 		const entityList = await this.getList();
 
-		const newEntity = { id: this.getUniqueEntityID(entityList), name: name };
+		const entityID = this.getUniqueEntityID(entityList);
+		const newEntity = { id: entityID, name: name };
 		entityList.entities.push(newEntity);
 
-		await this.updateEntityListFile(entityList);
+		this.updateEntityListFile(entityList);
 
 		return newEntity.id;
 	}
@@ -115,7 +123,7 @@ class Entity {
 
 	async updateEntityListFile (entityList) {
 		const jsonData = JSON.stringify(entityList);
-		await fs.promises.writeFile(this.filePath, jsonData);
+		await fs.promises.writeFile(this.listPath, jsonData);
 	}
 
 	getUniqueEntityID (entityList) {
