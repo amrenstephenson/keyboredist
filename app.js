@@ -70,6 +70,12 @@ function registerRoutes (entity) {
 	});
 }
 
+// https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/418
+// https://en.wikipedia.org/wiki/Utah_teapot#Appearances
+app.get('/coffee', async function (req, resp) {
+	resp.status(418).send('Cannot brew coffee. I am permanently the newly discovered Teapotahedron, which is the 6th platonic solid.');
+});
+
 function handleError (err, entity, resp) {
 	if (err instanceof entities.EntityNotFoundError) {
 		resp.status(404).send(`${entity.nameSingularCap} not found.`);
