@@ -10,7 +10,7 @@ const isTesting = process.env.JEST_WORKER_ID !== undefined;
 
 const users = new entities.Entity('user', 'users', isTesting);
 const keyboards = new entities.Entity('keyboard', 'keyboards', isTesting);
-const comments = new entities.Entity('keyboard', 'keyboards', isTesting);
+const comments = new entities.Entity('comment', 'comments', isTesting);
 
 keyboards.addRelationship(users);
 comments.addRelationship(users);
