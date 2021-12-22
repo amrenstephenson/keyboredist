@@ -12,7 +12,6 @@ const keyboards = new entities.Entity('keyboard', 'keyboards', isTesting);
 const comments = new entities.Entity('keyboard', 'keyboards', isTesting);
 
 keyboards.addRelationship(users);
-
 comments.addRelationship(users);
 comments.addRelationship(keyboards);
 
@@ -44,7 +43,7 @@ function registerRoutes (entity) {
 	// Add new entity.
 	app.post(`/api/${entity.namePlural}`, async function (req, resp) {
 		try {
-			resp.send(await entity.create(req.body.name));
+			resp.send(await entity.create(req.body.name, req.body.relationships));
 		} catch (err) {
 			handleError(err, entity, resp);
 		}

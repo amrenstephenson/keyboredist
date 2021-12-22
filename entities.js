@@ -11,6 +11,24 @@ class EntityNotFoundError extends Error {
 }
 
 // Modified from https://dev.to/lvidakovic/custom-error-types-in-node-js-491a [accessed 13 Dec 2021]
+class EntityNotFoundInRelationshipError extends Error {
+	constructor (message) {
+		super(message);
+		this.name = 'EntityNotFoundInRelationshipError';
+		Error.captureStackTrace(this, EntityNotFoundInRelationshipError);
+	}
+}
+
+// Modified from https://dev.to/lvidakovic/custom-error-types-in-node-js-491a [accessed 13 Dec 2021]
+class EntityMalformedRelationshipError extends Error {
+	constructor (message) {
+		super(message);
+		this.name = 'EntityMalformedRelationshipError';
+		Error.captureStackTrace(this, EntityMalformedRelationshipError);
+	}
+}
+
+// Modified from https://dev.to/lvidakovic/custom-error-types-in-node-js-491a [accessed 13 Dec 2021]
 class EntityIDGenerationError extends Error {
 	constructor (message) {
 		super(message);
@@ -41,11 +59,34 @@ class Entity {
 			});
 		}
 
-		this.relationships = [];
+		this.relationships = {};
 	}
 
 	addRelationship (relatedEntity) {
-		this.relationships.push(relatedEntity);
+		this.relationships[relatedEntity.nameSingular] = relatedEntity;
+	}
+
+	validateRelationships (relationships) {
+		if (Object.prototype.toString.call(relationships) !== '[object Array]') {
+			throw new EntityMalformedRelationshipError();
+		}
+		relationships.forEach((relationship, entityID) => {
+			if (typeof (relationship) !== 'string' || this.relationships[relationship] === undefined) {
+				throw new EntityMalformedRelationshipError();
+			}
+			try {
+				// If this entity doesn't exists this will throw EntityNotFoundError.
+				this.relationships[relationship].get(entityID);
+			} catch (err) {
+				if (err instanceof EntityNotFoundError) {
+					// Replace EntityNotFoundError with EntityNotFoundInRelationshipError.
+					throw new EntityNotFoundInRelationshipError();
+				} else {
+					// Rethrow error.
+					throw err;
+				}
+			}
+		});
 	}
 
 	async getList () {
@@ -60,11 +101,17 @@ class Entity {
 		return entityList;
 	}
 
-	async create (name) {
+	async create (entityName, relationships) {
+		if (relationships === undefined) {
+			relationships = [];
+		}
+		this.validateRelationships(relationships);
+		// TODO: this.validateName(entityName);
+
 		const entityList = await this.getList();
 
 		const entityID = this.getUniqueEntityID(entityList);
-		const newEntity = { id: entityID, name: name };
+		const newEntity = { id: entityID, name: entityName, relationships: relationships };
 		entityList.entities.push(newEntity);
 
 		this.updateEntityListFile(entityList);
@@ -142,4 +189,6 @@ class Entity {
 
 module.exports.Entity = Entity;
 module.exports.EntityNotFoundError = EntityNotFoundError;
+module.exports.EntityNotFoundInRelationshipError = EntityNotFoundInRelationshipError;
 module.exports.EntityIDGenerationError = EntityIDGenerationError;
+module.exports.EntityMalformedRelationshipError = EntityMalformedRelationshipError;
