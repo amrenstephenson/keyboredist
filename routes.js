@@ -1,7 +1,6 @@
 const app = require('./app');
 const entities = require('./entities');
 
-// TODO: Make single error handling function.
 function register (app, entity) {
 	// Get list of existing entities.
 	app.get(`/api/${entity.namePlural}`, async function (req, resp) {
