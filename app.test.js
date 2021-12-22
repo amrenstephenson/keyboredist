@@ -1,7 +1,7 @@
 const request = require('supertest');
 const app = require('./app');
 
-describe('Test the user part of the API.', () => {
+describe('Test /api/users', () => {
 	describe('GET /api/users', () => {
 		test('Succeeds and returns JSON.', () => {
 			return request(app)
@@ -26,16 +26,16 @@ describe('Test the user part of the API.', () => {
 	});
 
 	describe('POST /api/users', () => {
-		test('Relationships of [] gives 200.', () => {
-			const params = { name: 'Test User', relationships: [] };
+		test('Relationships of undefined gives 200.', () => {
+			const params = { name: 'Test User' };
 			return request(app)
 				.post('/api/users')
 				.send(params)
 				.expect(200);
 		});
 
-		test('Relationships undefined gives 200.', () => {
-			const params = { name: 'Test User' };
+		test('Relationships of [] gives 200.', () => {
+			const params = { name: 'Test User', relationships: [] };
 			return request(app)
 				.post('/api/users')
 				.send(params)
