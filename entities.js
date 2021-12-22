@@ -82,7 +82,7 @@ class Entity {
 					// Replace EntityNotFoundError with EntityNotFoundInRelationshipError.
 					throw new EntityNotFoundInRelationshipError();
 				} else {
-					// Rethrow error.
+					// Rethrow other errors.
 					throw err;
 				}
 			}
