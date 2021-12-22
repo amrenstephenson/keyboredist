@@ -80,11 +80,18 @@ function registerEasterEgg () {
 }
 
 function handleError (err, entity, resp) {
-	if (err instanceof entities.EntityNotFoundError) {
+	if (err instanceof entities.EntityMalformedRelationshipError) {
+		resp.status(400).send(`The ${entity.nameSingular}'s relationships were missing or malformed.`);
+	} else if (err instanceof entities.EntityNotFoundError) {
 		resp.status(404).send(`${entity.nameSingularCap} not found.`);
+	} else if (err instanceof entities.EntityNotFoundInRelationshipError) {
+		resp.status(404).send('An entity specified as a relationship was not found.');
 	} else if (err instanceof entities.EntityIDGenerationError) {
 		resp.status(500).send(`Error generating ${entity.nameSingular} ID, please try again.`);
 	} else {
+		if (isTesting) {
+			console.log(err);
+		}
 		resp.status(500).send('Unknown internal server error.');
 	}
 }
