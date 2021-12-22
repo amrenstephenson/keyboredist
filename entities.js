@@ -1,4 +1,4 @@
-const crypto = require('crypto');
+const crypto = require('crypto'); // Used for generating random entity IDs.
 const fs = require('fs');
 
 // Modified from https://dev.to/lvidakovic/custom-error-types-in-node-js-491a [accessed 13 Dec 2021]
@@ -52,11 +52,20 @@ class Entity {
 		const suffix = isTesting ? '-test' : '';
 		this.path = `./json/${namePlural}${suffix}`;
 		this.listPath = this.path + '.json';
+		this.templatePath = this.path + '-template.json';
 
-		if (!fs.existsSync(this.listPath)) {
-			fs.writeFileSync(this.listPath, '{"entities":[]}', (err) => {
-				if (err) throw err;
-			});
+		if (isTesting) {
+			// Replace entity-test.json with entity-test-template.json.
+			if (fs.existsSync(this.templatePath)) {
+				fs.copyFileSync(this.templatePath, this.listPath);
+			}
+		} else {
+			// If entity.json doesn't exist, then create it.
+			if (!fs.existsSync(this.listPath)) {
+				fs.writeFileSync(this.listPath, '{"entities":[]}', (err) => {
+					if (err) throw err;
+				});
+			}
 		}
 
 		this.relationships = {};
@@ -67,16 +76,18 @@ class Entity {
 	}
 
 	validateRelationships (relationships) {
-		if (Object.prototype.toString.call(relationships) !== '[object Array]') {
+		console.log(JSON.stringify(Object.keys(relationships)) + ' !== ' + JSON.stringify(Object.keys(this.relationships)));
+		if (JSON.stringify(Object.keys(relationships)) !== JSON.stringify(Object.keys(this.relationships))) {
+			console.log('1');
 			throw new EntityMalformedRelationshipError();
 		}
-		relationships.forEach((relationship, entityID) => {
-			if (typeof (relationship) !== 'string' || this.relationships[relationship] === undefined) {
-				throw new EntityMalformedRelationshipError();
-			}
+		console.log('2');
+		Object.keys(relationships).forEach(entityType => {
+			const entityID = relationships[entityType];
 			try {
 				// If this entity doesn't exists this will throw EntityNotFoundError.
-				this.relationships[relationship].get(entityID);
+				console.log(entityType);
+				this.relationships[entityType].get(entityID);
 			} catch (err) {
 				if (err instanceof EntityNotFoundError) {
 					// Replace EntityNotFoundError with EntityNotFoundInRelationshipError.

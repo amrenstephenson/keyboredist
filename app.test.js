@@ -34,16 +34,16 @@ describe('Test /api/users', () => {
 				.expect(200);
 		});
 
-		test('Relationships of [] gives 200.', () => {
-			const params = { name: 'Test User', relationships: [] };
+		test('Relationships of {} gives 200.', () => {
+			const params = { name: 'Test User', relationships: {} };
 			return request(app)
 				.post('/api/users')
 				.send(params)
 				.expect(200);
 		});
 
-		test('Relationships of non-array gives 400.', () => {
-			const params = { name: 'Test User', relationships: { user: 'test' } };
+		test('Relationships of array gives 400.', () => {
+			const params = { name: 'Test User', relationships: [{ user: 'test' }] };
 			return request(app)
 				.post('/api/users')
 				.send(params)
@@ -51,7 +51,7 @@ describe('Test /api/users', () => {
 		});
 
 		test('Relationships of invalid relationship gives 400.', () => {
-			const params = { name: 'Test User', relationships: [{ user: 'test' }] };
+			const params = { name: 'Test User', relationships: { user: 'test' } };
 			return request(app)
 				.post('/api/users')
 				.send(params)
@@ -80,5 +80,15 @@ describe('Test /api/users', () => {
 				.delete('/api/users/definitely-not-a-user')
 				.expect(404);
 		});
+	});
+});
+
+describe('Test /api/keyboards', () => {
+	test('Relationships of valid user ID gives 200.', () => {
+		const params = { name: 'Alice\'s Keyboard', relationships: { user: 'xmz9zEcufr' } };
+		return request(app)
+			.post('/api/keyboards')
+			.send(params)
+			.expect(200);
 	});
 });
