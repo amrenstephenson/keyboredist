@@ -11,20 +11,20 @@ class EntityNotFoundError extends Error {
 }
 
 // Modified from https://dev.to/lvidakovic/custom-error-types-in-node-js-491a [accessed 13 Dec 2021]
-class EntityNotFoundInRelationshipError extends Error {
+class EntityParentNotFoundError extends Error {
 	constructor (message) {
 		super(message);
-		this.name = 'EntityNotFoundInRelationshipError';
-		Error.captureStackTrace(this, EntityNotFoundInRelationshipError);
+		this.name = 'EntityParentNotFoundError';
+		Error.captureStackTrace(this, EntityParentNotFoundError);
 	}
 }
 
 // Modified from https://dev.to/lvidakovic/custom-error-types-in-node-js-491a [accessed 13 Dec 2021]
-class EntityMalformedRelationshipError extends Error {
+class EntityParentsBadRequestError extends Error {
 	constructor (message) {
 		super(message);
-		this.name = 'EntityMalformedRelationshipError';
-		Error.captureStackTrace(this, EntityMalformedRelationshipError);
+		this.name = 'EntityParentsBadRequestError';
+		Error.captureStackTrace(this, EntityParentsBadRequestError);
 	}
 }
 
@@ -68,36 +68,41 @@ class Entity {
 			}
 		}
 
-		this.relationships = {};
+		this.parentStructure = {};
+		this.childStructure = {};
 	}
 
-	addRelationship (relatedEntity) {
-		this.relationships[relatedEntity.nameSingular] = relatedEntity;
+	static setManyToOne (many, one) {
+		many.parentStructure[one.nameSingular] = one;
+		one.childStructure[many.namePlural] = many;
 	}
 
-	validateRelationships (relationships) {
-		console.log(JSON.stringify(Object.keys(relationships)) + ' !== ' + JSON.stringify(Object.keys(this.relationships)));
-		if (JSON.stringify(Object.keys(relationships)) !== JSON.stringify(Object.keys(this.relationships))) {
-			console.log('1');
-			throw new EntityMalformedRelationshipError();
+	async validateParents (parents) {
+		if (Object.prototype.toString.call(parents) !== '[object Object]') {
+			throw new EntityParentsBadRequestError();
 		}
-		console.log('2');
-		Object.keys(relationships).forEach(entityType => {
-			const entityID = relationships[entityType];
+		const parentKeys = JSON.stringify(Object.keys(parents));
+		const parentStructureKeys = JSON.stringify(Object.keys(this.parentStructure));
+		if (parentKeys !== parentStructureKeys) {
+			throw new EntityParentsBadRequestError();
+		}
+
+		for (const parentName of Object.keys(parents)) {
+			const parentID = parents[parentName];
 			try {
 				// If this entity doesn't exists this will throw EntityNotFoundError.
-				console.log(entityType);
-				this.relationships[entityType].get(entityID);
+				await this.parentStructure[parentName].get(parentID);
 			} catch (err) {
 				if (err instanceof EntityNotFoundError) {
-					// Replace EntityNotFoundError with EntityNotFoundInRelationshipError.
-					throw new EntityNotFoundInRelationshipError();
+					// Replace EntityNotFoundError with EntityParentNotFoundError.
+					throw new EntityParentNotFoundError();
 				} else {
 					// Rethrow other errors.
 					throw err;
 				}
 			}
-		});
+		}
+		console.log('B');
 	}
 
 	async getList () {
@@ -112,18 +117,29 @@ class Entity {
 		return entityList;
 	}
 
-	async create (entityName, relationships) {
-		if (relationships === undefined) {
-			relationships = [];
+	async create (entityName, parents) {
+		if (parents === undefined) {
+			parents = {};
 		}
-		this.validateRelationships(relationships);
+		await this.validateParents(parents);
 		// TODO: this.validateName(entityName);
 
 		const entityList = await this.getList();
-
 		const entityID = this.getUniqueEntityID(entityList);
-		const newEntity = { id: entityID, name: entityName, relationships: relationships };
+		const children = {};
+		Object.keys(this.childStructure).forEach(key => {
+			children[key] = [];
+		});
+		const newEntity = { id: entityID, name: entityName, parents: parents, children: children };
 		entityList.entities.push(newEntity);
+
+		// Add entity as a child of each of its parents.
+		Object.keys(parents).forEach(async entityType => {
+			const parentID = parents[entityType];
+			const parentData = await this.parentStructure[entityType].get(parentID);
+			parentData.children[this.namePlural].push(entityID);
+			this.parentStructure[entityType].update(parentID, parentData);
+		});
 
 		this.updateEntityListFile(entityList);
 
@@ -161,14 +177,14 @@ class Entity {
 		await this.updateEntityListFile(entityList);
 	}
 
-	async update (id) {
+	async update (id, newData) {
 		const entityList = await this.getList();
 		let foundEntity = false;
 
 		entityList.entities.forEach((entity, index) => {
 			if (entity.id === id) {
 				foundEntity = true;
-				// Do updating here.
+				entityList.entities[index] = newData;
 			}
 		});
 
@@ -200,6 +216,6 @@ class Entity {
 
 module.exports.Entity = Entity;
 module.exports.EntityNotFoundError = EntityNotFoundError;
-module.exports.EntityNotFoundInRelationshipError = EntityNotFoundInRelationshipError;
+module.exports.EntityParentNotFoundError = EntityParentNotFoundError;
 module.exports.EntityIDGenerationError = EntityIDGenerationError;
-module.exports.EntityMalformedRelationshipError = EntityMalformedRelationshipError;
+module.exports.EntityParentsBadRequestError = EntityParentsBadRequestError;

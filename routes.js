@@ -1,4 +1,3 @@
-const app = require('./app');
 const entities = require('./entities');
 
 function register (app, entity) {
@@ -7,7 +6,7 @@ function register (app, entity) {
 		try {
 			resp.json(await entity.getList());
 		} catch (err) {
-			handleError(err, entity, resp);
+			handleError(err, app, entity, resp);
 		}
 	});
 
@@ -16,16 +15,16 @@ function register (app, entity) {
 		try {
 			resp.json(await entity.get(req.params.id));
 		} catch (err) {
-			handleError(err, entity, resp);
+			handleError(err, app, entity, resp);
 		}
 	});
 
 	// Add new entity.
 	app.post(`/api/${entity.namePlural}`, async function (req, resp) {
 		try {
-			resp.send(await entity.create(req.body.name, req.body.relationships));
+			resp.send(await entity.create(req.body.name, req.body.parents));
 		} catch (err) {
-			handleError(err, entity, resp);
+			handleError(err, app, entity, resp);
 		}
 	});
 
@@ -35,7 +34,7 @@ function register (app, entity) {
 			await entity.remove(req.params.id);
 			resp.send('Success.');
 		} catch (err) {
-			handleError(err, entity, resp);
+			handleError(err, app, entity, resp);
 		}
 	});
 
@@ -45,7 +44,7 @@ function register (app, entity) {
 			await entity.update(req.params.id, req.body);
 			resp.send('Success.');
 		} catch (err) {
-			handleError(err, entity, resp);
+			handleError(err, app, entity, resp);
 		}
 	});
 }
@@ -58,17 +57,17 @@ function registerEasterEgg (app) {
 	});
 }
 
-function handleError (err, entity, resp) {
-	if (err instanceof entities.EntityMalformedRelationshipError) {
-		resp.status(400).send(`The ${entity.nameSingular}'s relationships were missing or malformed.`);
+function handleError (err, app, entity, resp) {
+	if (err instanceof entities.EntityParentsBadRequestError) {
+		resp.status(400).send(`The ${entity.nameSingular}'s parents were not specified or incorrectly provided.`);
 	} else if (err instanceof entities.EntityNotFoundError) {
 		resp.status(404).send(`${entity.nameSingularCap} not found.`);
-	} else if (err instanceof entities.EntityNotFoundInRelationshipError) {
-		resp.status(404).send('An entity specified as a relationship was not found.');
+	} else if (err instanceof entities.EntityParentNotFoundError) {
+		resp.status(404).send('An entity specified as a parent was not found.');
 	} else if (err instanceof entities.EntityIDGenerationError) {
 		resp.status(500).send(`Error generating ${entity.nameSingular} ID, please try again.`);
 	} else {
-		if (app.isTesting) {
+		if (app.isTesting === true) {
 			console.log(err);
 		}
 		resp.status(500).send('Unknown internal server error.');

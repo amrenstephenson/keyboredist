@@ -1,19 +1,22 @@
 {
 	"entities": [
 		{
-			"id": "xmz9zEcufr",
+			"id": "YoY5-sD7NE",
 			"name": "Alice",
-			"relationships": []
+			"parents": {},
+			"children": {
+				"keyboards": [],
+				"comments": []
+			}
 		},
 		{
-			"id": "9dQ3ORruwZ",
+			"id": "j9iUbjb5n8",
 			"name": "Bob",
-			"relationships": []
-		},
-		{
-			"id": "KJN0iqdmt5",
-			"name": "Charlie",
-			"relationships": []
+			"parents": {},
+			"children": {
+				"keyboards": [],
+				"comments": []
+			}
 		}
 	]
 }

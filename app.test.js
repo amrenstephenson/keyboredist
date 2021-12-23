@@ -26,7 +26,7 @@ describe('Test /api/users', () => {
 	});
 
 	describe('POST /api/users', () => {
-		test('Relationships of undefined gives 200.', () => {
+		test('Parents of undefined gives 200.', () => {
 			const params = { name: 'Test User' };
 			return request(app)
 				.post('/api/users')
@@ -34,16 +34,16 @@ describe('Test /api/users', () => {
 				.expect(200);
 		});
 
-		test('Relationships of {} gives 200.', () => {
-			const params = { name: 'Test User', relationships: {} };
+		test('Parents of {} gives 200.', () => {
+			const params = { name: 'Test User', parents: {} };
 			return request(app)
 				.post('/api/users')
 				.send(params)
 				.expect(200);
 		});
 
-		test('Relationships of array gives 400.', () => {
-			const params = { name: 'Test User', relationships: [{ user: 'test' }] };
+		test('Parents of array gives 400.', () => {
+			const params = { name: 'Test User', parents: [{ user: 'test' }] };
 			return request(app)
 				.post('/api/users')
 				.send(params)
@@ -51,7 +51,7 @@ describe('Test /api/users', () => {
 		});
 
 		test('Relationships of invalid relationship gives 400.', () => {
-			const params = { name: 'Test User', relationships: { user: 'test' } };
+			const params = { name: 'Test User', parents: { user: 'test' } };
 			return request(app)
 				.post('/api/users')
 				.send(params)
@@ -69,7 +69,7 @@ describe('Test /api/users', () => {
 				.then(res => {
 					return request(app)
 						.delete(`/api/users/${res.text}`)
-						.expect(200); // Note this can fail if create fails! TODO: Add extra test.
+						.expect(200);
 				});
 		});
 	});
@@ -85,10 +85,24 @@ describe('Test /api/users', () => {
 
 describe('Test /api/keyboards', () => {
 	test('Relationships of valid user ID gives 200.', () => {
-		const params = { name: 'Alice\'s Keyboard', relationships: { user: 'xmz9zEcufr' } };
+		const params = { name: 'Alice\'s Keyboard', parents: { user: 'YoY5-sD7NE' } };
 		return request(app)
 			.post('/api/keyboards')
 			.send(params)
 			.expect(200);
+	});
+
+	test('Sucessive children of same parents gives 200s.', () => {
+		const params = { name: 'Bob\'s Double Keyboards', parents: { user: 'j9iUbjb5n8' } };
+		return request(app)
+			.post('/api/keyboards')
+			.send(params)
+			.expect(200)
+			.then(async () => {
+				return request(app)
+					.post('/api/keyboards')
+					.send(params)
+					.expect(200);
+			});
 	});
 });
