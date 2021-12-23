@@ -59,6 +59,8 @@ describe('Test /api/users', () => {
 		});
 	});
 
+	// TODO Add update tests.
+
 	describe('Multistage tests.', () => {
 		test('POST /api/users succeeds and returns ID, then DELETE /api/users/:id succeeds in removing user with ID.', () => {
 			const params = { name: 'Test User' };
