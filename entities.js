@@ -102,7 +102,6 @@ class Entity {
 				}
 			}
 		}
-		console.log('B');
 	}
 
 	async getList () {
@@ -122,7 +121,7 @@ class Entity {
 			parents = {};
 		}
 		await this.validateParents(parents);
-		// TODO: this.validateName(entityName);
+		// TODO this.validateName(entityName);
 
 		const entityList = await this.getList();
 		const entityID = this.getUniqueEntityID(entityList);
@@ -177,6 +176,7 @@ class Entity {
 		await this.updateEntityListFile(entityList);
 	}
 
+	// TODO Check that newData is valid.
 	async update (id, newData) {
 		const entityList = await this.getList();
 		let foundEntity = false;
