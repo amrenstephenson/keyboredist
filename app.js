@@ -16,10 +16,11 @@ entities.Entity.setManyToOne(keyboards, users);
 entities.Entity.setManyToOne(comments, users);
 entities.Entity.setManyToOne(comments, keyboards);
 
+routes.setTesting(isTesting);
+
 routes.register(app, users);
 routes.register(app, keyboards);
 routes.register(app, comments);
 routes.registerEasterEgg(app);
 
 module.exports = app;
-module.exports.isTesting = isTesting;

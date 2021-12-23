@@ -37,7 +37,16 @@ class EntityIDGenerationError extends Error {
 	}
 }
 
+/**
+ * Represents an entity (e.g. a user/keyboard/comment). The data for the entities are always stored in a JSON file by the end of a function call.
+ */
 class Entity {
+	/**
+	 * Construct a new entity.
+	 * @param {string} nameSingular
+	 * @param {string} namePlural
+	 * @param {boolean} isTesting
+	 */
 	constructor (nameSingular, namePlural, isTesting) {
 		this.nameSingular = nameSingular;
 		this.namePlural = namePlural;
@@ -72,11 +81,22 @@ class Entity {
 		this.childStructure = {};
 	}
 
+	/**
+	 * Setup a many-to-one relationship between entities.
+	 * @param {Entity} many The entity of which there are many.
+	 * @param {Entity} one The entity of which there is one.
+	 */
 	static setManyToOne (many, one) {
 		many.parentStructure[one.nameSingular] = one;
 		one.childStructure[many.namePlural] = many;
 	}
 
+	/**
+	 * Check if a parents object has all of the necessary parents specified, and that they exist.
+	 * @param {Object} parents
+	 * @throws {EntityParentsBadRequestError}
+	 * @throws {EntityParentNotFoundError}
+	 */
 	async validateParents (parents) {
 		if (Object.prototype.toString.call(parents) !== '[object Object]') {
 			throw new EntityParentsBadRequestError();
@@ -104,6 +124,10 @@ class Entity {
 		}
 	}
 
+	/**
+	 * Get a list of all entities.
+	 * @returns {[Object]}
+	 */
 	async getList () {
 		const fileData = await fs.promises.readFile(this.listPath);
 
@@ -116,6 +140,14 @@ class Entity {
 		return entityList;
 	}
 
+	/**
+	 * Create an entity.
+	 * @param {string} entityName
+	 * @param {Object} parents
+	 * @returns {string} The ID of the created entity.
+	 * @throws {EntityParentsBadRequestError}
+	 * @throws {EntityParentNotFoundError}
+	 */
 	async create (entityName, parents) {
 		if (parents === undefined) {
 			parents = {};
@@ -145,6 +177,12 @@ class Entity {
 		return newEntity.id;
 	}
 
+	/**
+	 * Get an entity.
+	 * @param {string} id The ID of the entity to get.
+	 * @returns {Object}
+	 * @throws {EntityNotFoundError}
+	 */
 	async get (id) {
 		const entityList = await this.getList();
 
@@ -158,6 +196,11 @@ class Entity {
 		throw new EntityNotFoundError();
 	}
 
+	/**
+	 * Remove an entity.
+	 * @param {*} id The ID of the entity to remove.
+	 * @throws {EntityNotFoundError}
+	 */
 	async remove (id) {
 		const entityList = await this.getList();
 		let foundEntity = false;
@@ -177,6 +220,12 @@ class Entity {
 	}
 
 	// TODO Check that newData is valid.
+	/**
+	 * Update an entity with new data.
+	 * @param {string} id The ID of the entity to update.
+	 * @param {Object} newData The new data for the entity.
+	 * @throws {EntityNotFoundError}
+	 */
 	async update (id, newData) {
 		const entityList = await this.getList();
 		let foundEntity = false;
@@ -195,11 +244,21 @@ class Entity {
 		await this.updateEntityListFile(entityList);
 	}
 
+	/**
+	 * Update the entity list file.
+	 * @param {[Object]} entityList
+	 */
 	async updateEntityListFile (entityList) {
 		const jsonData = JSON.stringify(entityList);
 		await fs.promises.writeFile(this.listPath, jsonData);
 	}
 
+	/**
+	 * Generate a base64 encoded unique 8-byte ID.
+	 * @param {[Object]} entityList
+	 * @returns {string}
+	 * @throws {EntityIDGenerationError}
+	 */
 	getUniqueEntityID (entityList) {
 		const randomID = crypto.randomBytes(8).toString('base64').replace('/', '-').slice(0, -2);
 
