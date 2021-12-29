@@ -1,0 +1,27 @@
+body {
+	min-height: 100vh;
+	min-height: -webkit-fill-available; /* Fix for mobile Safari */
+	width: 100vw;
+	touch-action: manipulation; /* Disable annoying double tap to zoom on mobile */
+}
+
+ul {
+	list-style-type: none;
+	margin: 0;
+	padding: 0;
+}
+
+button {
+	background: none;
+	color: inherit;
+	border: none;
+}
+
+.flex-grow {
+	flex: 1;
+}
+
+/* Display none and same for descendants */
+.dnd * {
+	display: none;
+}
