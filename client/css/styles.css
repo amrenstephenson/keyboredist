@@ -23,5 +23,28 @@ button {
 
 /* Display none and same for descendants */
 .dnd * {
-	display: none;
+	display: none !important;
+}
+.dnd {
+	display: none !important;
+}
+
+.loading * {
+	animation: fade 1s ease-in infinite;
+	border: 2px dashed black;
+	color: transparent;
+}
+
+@keyframes fade {
+	0% {
+		background-color: rgb(163, 149, 129);
+	}
+
+	50% {
+		background-color: rgb(199, 183, 148);
+	}
+
+	100% {
+		background-color: rgb(163, 149, 129);
+	}
 }
