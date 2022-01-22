@@ -6,6 +6,14 @@ const routes = require('./routes');
 app.use(express.static('client'));
 app.use(express.json());
 
+// Disable caching for non static content.
+// https://stackoverflow.com/a/53240717 [Accessed 30/12/2021]
+/* app.set('etag', false);
+app.use((_req, res, next) => {
+	res.set('Cache-Control', 'no-store');
+	next();
+}); */
+
 const isTesting = process.env.JEST_WORKER_ID !== undefined;
 
 const users = new entities.Entity('user', 'users', isTesting);

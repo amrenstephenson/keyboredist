@@ -6,7 +6,7 @@ document.addEventListener('DOMContentLoaded', () => {
 	onPageChange();
 	document.getElementById('login-button').addEventListener('click', async () => {
 		const username = document.getElementById('username-input').value;
-		const response = await fetch(apiURL + 'users?username=' + encodeURIComponent(username));
+		const response = await fetch(apiURL + 'users?name=' + encodeURIComponent(username));
 		const body = await response.text();
 		alert(body);
 	});

@@ -126,9 +126,10 @@ class Entity {
 
 	/**
 	 * Get a list of all entities.
+	 * @param {Object}
 	 * @returns {[Object]}
 	 */
-	async getList () {
+	async getList (searchParams) {
 		const fileData = await fs.promises.readFile(this.listPath);
 
 		// If the entity JSON file is empty, initialise it.
@@ -137,7 +138,18 @@ class Entity {
 		}
 
 		const entityList = await JSON.parse(fileData);
-		return entityList;
+		const resultsList = entityList;
+		/* const resultsList = { entities: [] };
+		for (const searchKey in searchParams) {
+			const searchValue = searchParams[searchKey];
+			entityList.entities.forEach(entity => {
+				if (entity[searchKey] !== undefined && entity[searchKey] === searchValue) {
+					resultsList.entities.push(entity);
+				}
+			});
+		} */
+
+		return resultsList;
 	}
 
 	/**

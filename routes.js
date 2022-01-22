@@ -8,7 +8,6 @@ let isTesting = false;
  */
 function setTesting (testing) {
 	isTesting = testing;
-	console.log(isTesting);
 }
 
 /**
@@ -18,11 +17,11 @@ function setTesting (testing) {
  */
 function register (app, entity) {
 	// Get list of existing entities.
-	app.get(`/api/${entity.namePlural}`, async function (_req, resp) {
+	app.get(`/api/${entity.namePlural}`, async function (req, resp) {
 		try {
-			resp.json(await entity.getList());
+			resp.json(await entity.getList(req.query));
 		} catch (err) {
-			handleRouteError(err, app, entity, resp);
+			handleRouteError(err, entity, resp);
 		}
 	});
 
@@ -31,7 +30,7 @@ function register (app, entity) {
 		try {
 			resp.json(await entity.get(req.params.id));
 		} catch (err) {
-			handleRouteError(err, app, entity, resp);
+			handleRouteError(err, entity, resp);
 		}
 	});
 
@@ -40,7 +39,7 @@ function register (app, entity) {
 		try {
 			resp.send(await entity.create(req.body.name, req.body.parents));
 		} catch (err) {
-			handleRouteError(err, app, entity, resp);
+			handleRouteError(err, entity, resp);
 		}
 	});
 
@@ -50,7 +49,7 @@ function register (app, entity) {
 			await entity.remove(req.params.id);
 			resp.send('Success.');
 		} catch (err) {
-			handleRouteError(err, app, entity, resp);
+			handleRouteError(err, entity, resp);
 		}
 	});
 
@@ -60,7 +59,7 @@ function register (app, entity) {
 			await entity.update(req.params.id, req.body);
 			resp.send('Success.');
 		} catch (err) {
-			handleRouteError(err, app, entity, resp);
+			handleRouteError(err, entity, resp);
 		}
 	});
 }
@@ -73,7 +72,7 @@ function register (app, entity) {
  */
 function registerEasterEgg (app) {
 	app.get('/coffee', async function (_req, resp) {
-		resp.status(418).send('Cannot brew coffee. I am permanently the newly discovered Teapotahedron, which is the 6th platonic solid.');
+		resp.status(418).send('HTTP Status 418. Cannot brew coffee. I am permanently the newly discovered Teapotahedron, which is the 6th platonic solid.');
 	});
 }
 
