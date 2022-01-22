@@ -29,22 +29,22 @@ button {
 	display: none !important;
 }
 
-.loading * {
+.loading > h1,
+.loading > div {
 	animation: fade 1s ease-in infinite;
-	border: 2px dashed black;
 	color: transparent;
 }
 
 @keyframes fade {
 	0% {
-		background-color: rgb(163, 149, 129);
+		background-color: #fff;
 	}
 
 	50% {
-		background-color: rgb(199, 183, 148);
+		background-color: #ddd;
 	}
 
 	100% {
-		background-color: rgb(163, 149, 129);
+		background-color: #fff;
 	}
 }

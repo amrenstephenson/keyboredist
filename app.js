@@ -30,5 +30,6 @@ routes.register(app, users);
 routes.register(app, keyboards);
 routes.register(app, comments);
 routes.registerEasterEgg(app);
+routes.registerFallback(app); // Register a fallback result that points to index.html. This is important because of how the URL is changed by the single page web app.
 
 module.exports = app;

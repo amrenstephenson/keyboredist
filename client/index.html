@@ -16,8 +16,8 @@
 		<!-- https://icons.getbootstrap.com/ (a set of SVG icons) -->
 		<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.7.2/font/bootstrap-icons.css" />
 
-		<link rel="stylesheet" href="css/styles.css" />
-		<script src="js/scripts.js"></script>
+		<link rel="stylesheet" href="http://127.0.0.1:8090/css/styles.css" />
+		<script src="http://127.0.0.1:8090/js/scripts.js"></script>
 	</head>
 
 	<body class="avenir flex flex-column bg-washed-yellow">
@@ -25,9 +25,9 @@
 			<div class="flex items-center">
 				<h1>Keyboredist</h1>
 				<div class="f4 fw5 dn di-l">
-					<a class="ml3 no-underline black-70 hover-black-50" href="#profile">Your Profile</a>
-					<a class="ml3 no-underline black-70 hover-black-50" href="#browse-users">Browse Users</a>
-					<a class="ml3 no-underline black-70 hover-black-50" href="#browse-keyboards">Browse Keyboards</a>
+					<a class="link-profile ml3 no-underline black-70 hover-black-50">Your Profile</a>
+					<a class="link-browse-users ml3 no-underline black-70 hover-black-50">Browse Users</a>
+					<a class="link-browse-keyboards ml3 no-underline black-70 hover-black-50">Browse Keyboards</a>
 				</div>
 			</div>
 			<div class="flex items-center dn-l">
@@ -37,17 +37,17 @@
 
 		<div id="mobile-nav-menu" class="dnd">
 			<ul>
-				<li class="bb pa2 f3 flex"><a class="no-underline black-70 w-100 hover-black-50" href="#profile">Your Profile</a></li>
-				<li class="bb pa2 f3 flex"><a class="no-underline black-70 w-100 hover-black-50" href="#browse-users">Browse Users</a></li>
-				<li class="bb pa2 f3 flex"><a class="no-underline black-70 w-100 hover-black-50" href="#browse-keyboards">Browse Keyboards</a></li>
+				<li class="bb pa2 f3 flex"><a class="link-profile no-underline black-70 w-100 hover-black-50">Your Profile</a></li>
+				<li class="bb pa2 f3 flex"><a class="link-browse-users no-underline black-70 w-100 hover-black-50">Browse Users</a></li>
+				<li class="bb pa2 f3 flex"><a class="link-browse-keyboards no-underline black-70 w-100 hover-black-50">Browse Keyboards</a></li>
 			</ul>
 		</div>
 
-		<main id="main-content" class="flex flex-column flex-grow">
+		<main id="main-content" class="flex flex-column flex-grow bg-white">
 			<div id="page-login-prompt" class="page flex flex-grow justify-center items-center h-100 w-100 bg-white">
 				<div class="bg-yellow pa3 br4 ba bw2">
 					<h1 class="mt0 f3 fw6">Hello,<br />are you bored?</h1>
-					<div class="pv2 w-100"><a class="no-underline bg-blue w-100 fw5 br3 white pa2 hover-bg-dark-blue hover-white-80" href="#login-username">Yes, login.</a></div>
+					<div class="pv2 w-100"><a class="link-login-username no-underline bg-blue w-100 fw5 br3 white pa2 hover-bg-dark-blue hover-white-80">Yes, login.</a></div>
 				</div>
 			</div>
 			<div id="page-login-username" class="page flex flex-grow justify-center items-center h-100 w-100 bg-white">
@@ -59,8 +59,9 @@
 					</div>
 				</div>
 			</div>
-			<div id="page-profile" class="page flex-grow h-100 w-100 bg-white pa4">
-				<h1 class="mt0 fw5">Name</h1>
+			<div id="page-users" class="page flex flex-column flex-grow h-100 w-100 pa4">
+				<h1 id="page-users-name" class="mt0 fw5 bb pb2 bb">Name</h1>
+				<div id="page-users-keyboards" class="flex-grow"></div>
 			</div>
 		</main>
 	</body>

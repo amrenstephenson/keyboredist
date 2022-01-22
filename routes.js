@@ -1,4 +1,5 @@
 const entities = require('./entities');
+const path = require('path');
 
 let isTesting = false;
 
@@ -10,12 +11,18 @@ function setTesting (testing) {
 	isTesting = testing;
 }
 
+function registerFallback (app) {
+	app.get(/.*/, (req, resp) => {
+		resp.sendFile(path.join(__dirname, 'client/index.html'));
+	});
+}
+
 /**
  * Register the Express routes for a given entity.
  * @param {Express} app The app to register the routes to.
  * @param {entities.Entity} entity The entity to register the routes for.
  */
-function register (app, entity) {
+function registerEntity (app, entity) {
 	// Get list of existing entities.
 	app.get(`/api/${entity.namePlural}`, async function (req, resp) {
 		try {
@@ -100,5 +107,6 @@ function handleRouteError (err, entity, resp) {
 }
 
 exports.setTesting = setTesting;
-exports.register = register;
+exports.register = registerEntity;
 exports.registerEasterEgg = registerEasterEgg;
+exports.registerFallback = registerFallback;
