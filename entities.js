@@ -138,8 +138,12 @@ class Entity {
 		}
 
 		const entityList = await JSON.parse(fileData);
-		const resultsList = entityList;
-		/* const resultsList = { entities: [] };
+
+		if (searchParams === null || Object.entries(searchParams).length === 0) {
+			return entityList;
+		}
+
+		const resultsList = { entities: [] };
 		for (const searchKey in searchParams) {
 			const searchValue = searchParams[searchKey];
 			entityList.entities.forEach(entity => {
@@ -147,7 +151,7 @@ class Entity {
 					resultsList.entities.push(entity);
 				}
 			});
-		} */
+		}
 
 		return resultsList;
 	}
@@ -167,7 +171,7 @@ class Entity {
 		await this.validateParents(parents);
 		// TODO this.validateName(entityName);
 
-		const entityList = await this.getList();
+		const entityList = await this.getList(null);
 		const entityID = this.getUniqueEntityID(entityList);
 		const children = {};
 		Object.keys(this.childStructure).forEach(key => {
@@ -196,7 +200,7 @@ class Entity {
 	 * @throws {EntityNotFoundError}
 	 */
 	async get (id) {
-		const entityList = await this.getList();
+		const entityList = await this.getList(null);
 
 		for (const index in entityList.entities) {
 			const entity = entityList.entities[index];
@@ -214,7 +218,7 @@ class Entity {
 	 * @throws {EntityNotFoundError}
 	 */
 	async remove (id) {
-		const entityList = await this.getList();
+		const entityList = await this.getList(null);
 		let foundEntity = false;
 
 		entityList.entities.forEach((entity, index) => {
@@ -239,7 +243,7 @@ class Entity {
 	 * @throws {EntityNotFoundError}
 	 */
 	async update (id, newData) {
-		const entityList = await this.getList();
+		const entityList = await this.getList(null);
 		let foundEntity = false;
 
 		entityList.entities.forEach((entity, index) => {

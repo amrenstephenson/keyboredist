@@ -21,7 +21,7 @@
 	</head>
 
 	<body class="avenir flex flex-column bg-washed-yellow">
-		<nav class="ph3 bb bg-washed-yellow flex justify-between">
+		<nav class="ph3 bb flex justify-between">
 			<div class="flex items-center">
 				<h1>Keyboredist</h1>
 				<div class="f4 fw5 dn di-l">
@@ -37,11 +37,13 @@
 
 		<div id="mobile-nav-menu" class="dnd">
 			<ul>
-				<li class="bb pa2 f3 flex"><a class="link-profile no-underline black-70 w-100 hover-black-50">Your Profile</a></li>
-				<li class="bb pa2 f3 flex"><a class="link-browse-users no-underline black-70 w-100 hover-black-50">Browse Users</a></li>
-				<li class="bb pa2 f3 flex"><a class="link-browse-keyboards no-underline black-70 w-100 hover-black-50">Browse Keyboards</a></li>
+				<li class="bb pa2 pl3 f3 flex"><a class="link-profile no-underline black-70 w-100 hover-black-50">Your Profile</a></li>
+				<li class="bb pa2 pl3 f3 flex"><a class="link-browse-users no-underline black-70 w-100 hover-black-50">Browse Users</a></li>
+				<li class="bb pa2 pl3 f3 flex"><a class="link-browse-keyboards no-underline black-70 w-100 hover-black-50">Browse Keyboards</a></li>
 			</ul>
 		</div>
+
+		<div id="login-banner" class="bb pv1 ph3 dnd"><span id="login-banner-text">Logged in as Bob</span><a class="link-logout fr underline blue">Logout</a></div>
 
 		<main id="main-content" class="flex flex-column flex-grow bg-white">
 			<div id="page-login-prompt" class="page flex flex-grow justify-center items-center h-100 w-100 bg-white">
@@ -60,8 +62,20 @@
 				</div>
 			</div>
 			<div id="page-users" class="page flex flex-column flex-grow h-100 w-100 pa4">
-				<h1 id="page-users-name" class="mt0 fw5 bb pb2 bb">Name</h1>
-				<div id="page-users-keyboards" class="flex-grow"></div>
+				<h1 id="page-users-name" class="mt0 fw5 bb pb2">Name</h1>
+				<div id="page-users-children" class="flex-grow"></div>
+			</div>
+			<div id="page-keyboards" class="page flex flex-column flex-grow h-100 w-100 pa4">
+				<h1 id="page-keyboards-name" class="mt0 fw5 bb pb2">Name</h1>
+				<div id="page-keyboards-children" class="flex-grow"></div>
+			</div>
+			<div id="page-browse-users" class="page flex flex-column flex-grow h-100 w-100 pa4">
+				<h1 class="mt0 fw5 bb">Browse Users</h1>
+				<div id="page-browse-users-list" class="flex-grow"></div>
+			</div>
+			<div id="page-browse-keyboards" class="page flex flex-column flex-grow h-100 w-100 pa4">
+				<h1 class="mt0 fw5 bb">Browse Keyboards</h1>
+				<div id="page-browse-keyboards-list" class="flex-grow"></div>
 			</div>
 		</main>
 	</body>
