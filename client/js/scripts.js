@@ -1,8 +1,10 @@
 const apiURL = 'http://127.0.0.1:8090/api';
-const PAGES = { loginPrompt: 'login-prompt', loginUsername: 'login-username', users: 'users', keyboards: 'keyboards', browseUsers: 'browse-users', browseKeyboards: 'browse-keyboards', profile: 'profile', addKeyboard: 'add-keyboard' };
+const PAGES = { loginPrompt: 'login-prompt', loginUsername: 'login-username', users: 'users', keyboards: 'keyboards', browseUsers: 'browse-users', browseKeyboards: 'browse-keyboards', profile: 'profile', addKeyboard: 'add-keyboard', addComment: 'add-comment' };
 
 let currentUserId = localStorage.getItem('currentUserId');
 let currentUserName = localStorage.getItem('currentUserName');
+
+let lastViewedKeyboardId = null;
 
 document.addEventListener('DOMContentLoaded', () => {
 	registerMobileNavEvents();
@@ -18,10 +20,18 @@ document.addEventListener('DOMContentLoaded', () => {
 		addKeyboardClicked();
 	});
 
+	document.getElementById('confirm-add-comment-button').addEventListener('click', async () => {
+		addCommentClicked();
+	});
+
 	document.addEventListener('keypress', async (key) => {
 		if (key.key === 'Enter') {
 			if (location.pathname.replace('/', '') === PAGES.loginUsername) {
 				loginClicked();
+			} else if (location.pathname.replace('/', '') === PAGES.addKeyboard) {
+				addKeyboardClicked();
+			} else if (location.pathname.replace('/', '') === PAGES.addComment) {
+				addCommentClicked();
 			}
 		}
 	});
@@ -35,7 +45,7 @@ async function addKeyboardClicked () {
 	const keyboardName = document.getElementById('keyboard-name-input').value;
 
 	const response = await fetch(apiURL + '/keyboards', {
-		method: 'POST', // or 'PUT'
+		method: 'POST',
 		headers: {
 			'Content-Type': 'application/json'
 		},
@@ -43,8 +53,34 @@ async function addKeyboardClicked () {
 	});
 
 	if (response.status === 200) {
-		const keyboardId = await response.text();
-		changePage(`${PAGES.keyboards}/${keyboardId}`);
+		const keyboard = await response.json();
+		changePage(`${PAGES.keyboards}/${keyboard.id}`);
+	} else {
+		// TODO
+		alert(await response.text());
+	}
+}
+
+async function addCommentClicked () {
+	if (lastViewedKeyboardId === null) {
+		alert('Error adding comment. Please log in and try again.');
+		setLogin(null, null);
+		changePage(PAGES.loginPrompt);
+		return;
+	}
+
+	const comment = document.getElementById('comment-input').value;
+
+	const response = await fetch(apiURL + '/comments', {
+		method: 'POST',
+		headers: {
+			'Content-Type': 'application/json'
+		},
+		body: JSON.stringify({ name: comment, parents: { user: currentUserId, keyboard: lastViewedKeyboardId } })
+	});
+
+	if (response.status === 200) {
+		changePage(`${PAGES.keyboards}/${lastViewedKeyboardId}`);
 	} else {
 		// TODO
 		alert(await response.text());
@@ -58,18 +94,29 @@ async function loginClicked () {
 		const jsonData = await response.json();
 		const entities = jsonData.entities;
 		if (entities === undefined || entities[0] === undefined) {
+			const response2 = await fetch(apiURL + '/users', {
+				method: 'POST',
+				headers: {
+					'Content-Type': 'application/json'
+				},
+				body: JSON.stringify({ name: username })
+			});
+
+			if (response2.status === 200) {
+				const user = await response2.json();
+				setLogin(user.id, user.name);
+				changePage(`${PAGES.users}/${user.id}`);
+			} else {
 			// TODO
-			alert('entites undefined');
+				alert(await response2.text());
+			}
 		} else {
 			setLogin(entities[0].id, entities[0].name);
 			changePage(`${PAGES.users}/${currentUserId}`);
 		}
-	} else if (response.status === 404) {
-		// TODO
-		alert('404');
 	} else {
 		// TODO
-		alert('other status');
+		alert(await response.text());
 	}
 }
 
@@ -117,6 +164,11 @@ function registerLinks () {
 			changePage(PAGES.addKeyboard);
 		});
 	});
+	document.querySelectorAll(`.link-${PAGES.addComment}`).forEach(function (elem) {
+		elem.addEventListener('click', async () => {
+			changePage(PAGES.addComment);
+		});
+	});
 	document.querySelectorAll('.link-logout').forEach(function (elem) {
 		elem.addEventListener('click', async () => {
 			setLogin(null, null);
@@ -162,6 +214,10 @@ async function changePage (newPage) {
 
 	const pageComponents = newPage.split('/');
 	const pageRoot = pageComponents[0];
+
+	if (pageRoot === PAGES.keyboards) {
+		lastViewedKeyboardId = pageComponents[1];
+	}
 
 	document.title = `${toTitleCase(pageRoot.replace('-', ' '))} | Keyboardist`;
 
@@ -243,7 +299,7 @@ async function loadEntity (nameSingular, namePlural, entityId, childSingular, ch
 	if (childrenIds.length === undefined) {
 		elemChildren.innerText = `There was an error getting the list of ${childPlural} for this ${nameSingular}.`;
 	} else if (childrenIds.length === 0) {
-		elemChildren.innerText = `This ${nameSingular} has no ${childPlural}.`;
+		elemChildren.innerText = `\nThis ${nameSingular} has no ${childPlural}.`;
 	} else {
 		for (const key in childrenIds) {
 			const childId = entity.children[childPlural][key];
@@ -252,7 +308,7 @@ async function loadEntity (nameSingular, namePlural, entityId, childSingular, ch
 			const child = await jsonData.json();
 
 			if (showParent) {
-				const parentId = child.parents[otherPlural][0];
+				const parentId = child.parents[otherSingular];
 				const jsonData = await fetch(`${apiURL}/${otherPlural}/${parentId}`);
 				const parent = await jsonData.json();
 

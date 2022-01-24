@@ -194,7 +194,7 @@ class Entity {
 
 		this.updateEntityListFile(entityList);
 
-		return newEntity.id;
+		return newEntity;
 	}
 
 	/**

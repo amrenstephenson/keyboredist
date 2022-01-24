@@ -49,35 +49,42 @@
 			<div id="page-login-prompt" class="page flex flex-grow justify-center items-center h-100 w-100 bg-white">
 				<div class="bg-yellow pa3 br4 ba bw2">
 					<h1 class="mt0 f3 fw6">Hello,<br />are you bored?</h1>
-					<div class="pv2 w-100"><a class="link-login-username no-underline bg-blue w-100 fw5 br3 white pa2 hover-bg-dark-blue hover-white-80">Yes, login.</a></div>
+					<div class="pv2 w-100"><a class="link-login-username no-underline bg-blue w-100 fw5 br3 white pa2 hover-bg-dark-blue hover-white-80">Yes, login / signup.</a></div>
 				</div>
 			</div>
 			<div id="page-login-username" class="page flex flex-grow justify-center items-center h-100 w-100 bg-white">
 				<div class="bg-yellow pa3 br4 ba bw2">
-					<h1 class="mt0 f3 fw6"><label for="username-input">What's your username?</label></h1>
+					<h1 class="mt0 f3 fw6"><label for="username-input">What's your name?</label></h1>
 					<div class="pv2 w-100 flex">
 						<input class="flex-grow br3 pa2 bw0 mr3" type="text" id="username-input" aria-label="Username input box" />
-						<a id="login-button" class="no-underline bg-blue fw5 br3 white pa2 hover-bg-dark-blue hover-white-80">Login</a>
+						<a id="login-button" class="no-underline bg-blue fw5 br3 white pa2 hover-bg-dark-blue hover-white-80">Login / Signup</a>
 					</div>
 				</div>
 			</div>
 			<div id="page-users" class="page flex flex-column flex-grow h-100 w-100 pa4">
-				<div class="bb ma0 mb3">
-					<h1 id="page-users-name" class="flex mt0 fw5 pb2 fl ma0">Name</h1>
-					<span id="add-keyboard-button" class="add-button fr bg-yellow square br-100 flex flex-grow justify-center items-center ba bw2 dnd"><a aria-label="Create keyboard" class="link-add-keyboard ma0 f2">+</a></span>
+				<div class="bb ma0 mb3 pb2 flex items-center">
+					<h1 id="page-users-name" class="flex flex-grow mt0 fw5 pb2 fl ma0 v-btm">Name</h1>
+					<a aria-label="Create keyboard" class="link-add-keyboard ma0 f2"><span id="add-keyboard-button" class="add-button fr bg-yellow square br-100 flex flex-grow justify-center items-center ba bw2 dnd">+</span></a>
 				</div>
+				<h2 class="ma0 fw4">- Keyboards -</h2>
 				<div id="page-users-children" class="flex-grow"></div>
 			</div>
 			<div id="page-keyboards" class="page flex flex-column flex-grow h-100 w-100 pa4">
-				<h1 id="page-keyboards-name" class="mt0 fw5 bb pb2">Name</h1>
+				<div class="bb ma0 mb3 pb2 flex items-center">
+					<h1 id="page-keyboards-name" class="flex flex-grow mt0 fw5 pb2 fl ma0 v-btm">Name</h1>
+					<a aria-label="New comment" class="link-add-comment ma0 f2"><span id="add-comment-button" class="add-button fr bg-yellow square br-100 flex flex-grow justify-center items-center ba bw2">✍</span></a>
+				</div>
+				<h2 class="ma0 fw4">- Comments -</h2>
 				<div id="page-keyboards-children" class="flex-grow"></div>
 			</div>
 			<div id="page-browse-users" class="page flex flex-column flex-grow h-100 w-100 pa4">
-				<h1 class="mt0 fw5 bb">Browse Users</h1>
+				<h1 class="mt0 fw5 bb pb3">Browse Users</h1>
+				<h2 class="ma0 fw4">- All Users -</h2>
 				<div id="page-browse-users-list" class="flex-grow"></div>
 			</div>
 			<div id="page-browse-keyboards" class="page flex flex-column flex-grow h-100 w-100 pa4">
-				<h1 class="mt0 fw5 bb">Browse Keyboards</h1>
+				<h1 class="mt0 fw5 bb pb3">Browse Keyboards</h1>
+				<h2 class="ma0 fw4">- All Keyboards -</h2>
 				<div id="page-browse-keyboards-list" class="flex-grow"></div>
 			</div>
 			<div id="page-add-keyboard" class="page flex flex-grow justify-center items-center h-100 w-100 bg-white">
@@ -86,6 +93,15 @@
 					<div class="pv2 w-100 flex">
 						<input class="flex-grow br3 pa2 bw0 mr3" type="text" id="keyboard-name-input" aria-label="Keyboard name input box" />
 						<a id="confirm-add-keyboard-button" class="no-underline bg-blue fw5 br3 white pa2 hover-bg-dark-blue hover-white-80">Create</a>
+					</div>
+				</div>
+			</div>
+			<div id="page-add-comment" class="page flex flex-grow justify-center items-center h-100 w-100 bg-white">
+				<div class="bg-yellow pa3 br4 ba bw2 ma4">
+					<h1 class="mt0 f3 fw6"><label for="keyboard-name-input">What would you like to comment?</label></h1>
+					<div class="pv2 w-100 flex">
+						<input class="flex-grow br3 pa2 bw0 mr3" type="text" id="comment-input" aria-label="Comment input box" />
+						<a id="confirm-add-comment-button" class="no-underline bg-blue fw5 br3 white pa2 hover-bg-dark-blue hover-white-80">Post</a>
 					</div>
 				</div>
 			</div>
