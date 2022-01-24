@@ -31,7 +31,7 @@
 				</div>
 			</div>
 			<div class="flex items-center dn-l">
-				<button id="mobile-nav-menu-toggle"><i class="bi bi-list f2 fr pointer" aria-label="Open mobile navigation menu"></i></button>
+				<a id="mobile-nav-menu-toggle" class="f2">☰</i></a>
 			</div>
 		</nav>
 
@@ -62,7 +62,10 @@
 				</div>
 			</div>
 			<div id="page-users" class="page flex flex-column flex-grow h-100 w-100 pa4">
-				<h1 id="page-users-name" class="mt0 fw5 bb pb2">Name</h1>
+				<div class="bb ma0 mb3">
+					<h1 id="page-users-name" class="flex mt0 fw5 pb2 fl ma0">Name</h1>
+					<span id="add-keyboard-button" class="add-button fr bg-yellow square br-100 flex flex-grow justify-center items-center ba bw2 dnd"><a aria-label="Create keyboard" class="link-add-keyboard ma0 f2">+</a></span>
+				</div>
 				<div id="page-users-children" class="flex-grow"></div>
 			</div>
 			<div id="page-keyboards" class="page flex flex-column flex-grow h-100 w-100 pa4">
@@ -76,6 +79,15 @@
 			<div id="page-browse-keyboards" class="page flex flex-column flex-grow h-100 w-100 pa4">
 				<h1 class="mt0 fw5 bb">Browse Keyboards</h1>
 				<div id="page-browse-keyboards-list" class="flex-grow"></div>
+			</div>
+			<div id="page-add-keyboard" class="page flex flex-grow justify-center items-center h-100 w-100 bg-white">
+				<div class="bg-yellow pa3 br4 ba bw2 ma4">
+					<h1 class="mt0 f3 fw6"><label for="keyboard-name-input">What would you like to call your new keyboard?</label></h1>
+					<div class="pv2 w-100 flex">
+						<input class="flex-grow br3 pa2 bw0 mr3" type="text" id="keyboard-name-input" aria-label="Keyboard name input box" />
+						<a id="confirm-add-keyboard-button" class="no-underline bg-blue fw5 br3 white pa2 hover-bg-dark-blue hover-white-80">Create</a>
+					</div>
+				</div>
 			</div>
 		</main>
 	</body>

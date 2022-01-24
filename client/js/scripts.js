@@ -1,5 +1,5 @@
 const apiURL = 'http://127.0.0.1:8090/api';
-const PAGES = { loginPrompt: 'login-prompt', loginUsername: 'login-username', users: 'users', keyboards: 'keyboards', browseUsers: 'browse-users', browseKeyboards: 'browse-keyboards', profile: 'profile' };
+const PAGES = { loginPrompt: 'login-prompt', loginUsername: 'login-username', users: 'users', keyboards: 'keyboards', browseUsers: 'browse-users', browseKeyboards: 'browse-keyboards', profile: 'profile', addKeyboard: 'add-keyboard' };
 
 let currentUserId = localStorage.getItem('currentUserId');
 let currentUserName = localStorage.getItem('currentUserName');
@@ -14,6 +14,10 @@ document.addEventListener('DOMContentLoaded', () => {
 		loginClicked();
 	});
 
+	document.getElementById('confirm-add-keyboard-button').addEventListener('click', async () => {
+		addKeyboardClicked();
+	});
+
 	document.addEventListener('keypress', async (key) => {
 		if (key.key === 'Enter') {
 			if (location.pathname.replace('/', '') === PAGES.loginUsername) {
@@ -26,6 +30,26 @@ document.addEventListener('DOMContentLoaded', () => {
 		changePage(location.pathname);
 	});
 });
+
+async function addKeyboardClicked () {
+	const keyboardName = document.getElementById('keyboard-name-input').value;
+
+	const response = await fetch(apiURL + '/keyboards', {
+		method: 'POST', // or 'PUT'
+		headers: {
+			'Content-Type': 'application/json'
+		},
+		body: JSON.stringify({ name: keyboardName, parents: { user: currentUserId } })
+	});
+
+	if (response.status === 200) {
+		const keyboardId = await response.text();
+		changePage(`${PAGES.keyboards}/${keyboardId}`);
+	} else {
+		// TODO
+		alert(await response.text());
+	}
+}
 
 async function loginClicked () {
 	const username = document.getElementById('username-input').value;
@@ -88,6 +112,11 @@ function registerLinks () {
 			changePage(PAGES.browseKeyboards);
 		});
 	});
+	document.querySelectorAll(`.link-${PAGES.addKeyboard}`).forEach(function (elem) {
+		elem.addEventListener('click', async () => {
+			changePage(PAGES.addKeyboard);
+		});
+	});
 	document.querySelectorAll('.link-logout').forEach(function (elem) {
 		elem.addEventListener('click', async () => {
 			setLogin(null, null);
@@ -122,6 +151,13 @@ async function changePage (newPage) {
 			changePage(`${PAGES.users}/${currentUserId}`);
 		}
 		return;
+	}
+
+	if (newPage === PAGES.loginUsername || newPage === PAGES.loginPrompt) {
+		if (currentUserId !== null) {
+			changePage(`${PAGES.users}/${currentUserId}`);
+			return;
+		}
 	}
 
 	const pageComponents = newPage.split('/');
@@ -172,6 +208,14 @@ function capitalise (string) {
 }
 
 async function loadEntity (nameSingular, namePlural, entityId, childSingular, childPlural, showParent, otherSingular, otherPlural) {
+	if (namePlural === 'users') {
+		if (entityId === currentUserId) {
+			document.getElementById('add-keyboard-button').classList.remove('dnd');
+		} else {
+			document.getElementById('add-keyboard-button').classList.add('dnd');
+		}
+	}
+
 	const response = await fetch(`${apiURL}/${namePlural}/${entityId}`);
 
 	const elemName = document.getElementById(`page-${namePlural}-name`);

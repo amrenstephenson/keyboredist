@@ -63,7 +63,7 @@ function registerEntity (app, entity) {
 	// Update existing entity with given ID.
 	app.post(`/api/${entity.namePlural}/:id`, async function (req, resp) {
 		try {
-			await entity.update(req.params.id, req.body);
+			await entity.overwrite(req.params.id, req.body);
 			resp.send('Success.');
 		} catch (err) {
 			handleRouteError(err, entity, resp);
@@ -99,9 +99,11 @@ function handleRouteError (err, entity, resp) {
 	} else if (err instanceof entities.EntityIDGenerationError) {
 		resp.status(500).send(`Error generating ${entity.nameSingular} ID, please try again.`);
 	} else {
-		if (isTesting) {
+		/* if (isTesting || true) {
 			console.log(err);
-		}
+		} */
+		console.log(isTesting); // TODO: REMOVE
+		console.log(err); // TODO: REMOVE
 		resp.status(500).send('Unknown internal server error.');
 	}
 }

@@ -107,11 +107,11 @@ class Entity {
 			throw new EntityParentsBadRequestError();
 		}
 
-		for (const parentName of Object.keys(parents)) {
-			const parentID = parents[parentName];
+		for (const parentKey of Object.keys(parents)) {
+			const parentID = parents[parentKey];
 			try {
 				// If this entity doesn't exists this will throw EntityNotFoundError.
-				await this.parentStructure[parentName].get(parentID);
+				await this.parentStructure[parentKey].get(parentID);
 			} catch (err) {
 				if (err instanceof EntityNotFoundError) {
 					// Replace EntityNotFoundError with EntityParentNotFoundError.
@@ -174,19 +174,23 @@ class Entity {
 		const entityList = await this.getList(null);
 		const entityID = this.getUniqueEntityID(entityList);
 		const children = {};
+		const childrenCounts = {};
 		Object.keys(this.childStructure).forEach(key => {
 			children[key] = [];
+			childrenCounts[key] = 0;
 		});
-		const newEntity = { id: entityID, name: entityName, parents: parents, children: children };
+		const newEntity = { id: entityID, name: entityName, parents: parents, children: children, childrenCounts: childrenCounts };
 		entityList.entities.push(newEntity);
 
 		// Add entity as a child of each of its parents.
-		Object.keys(parents).forEach(async entityType => {
-			const parentID = parents[entityType];
-			const parentData = await this.parentStructure[entityType].get(parentID);
+		for (const parentKey of Object.keys(parents)) {
+			const parentID = parents[parentKey];
+			// If this entity doesn't exists this will throw EntityNotFoundError.
+			const parentData = await this.parentStructure[parentKey].get(parentID);
+
 			parentData.children[this.namePlural].push(entityID);
-			this.parentStructure[entityType].update(parentID, parentData);
-		});
+			this.parentStructure[parentKey].overwrite(parentID, parentData);
+		}
 
 		this.updateEntityListFile(entityList);
 
@@ -242,14 +246,14 @@ class Entity {
 	 * @param {Object} newData The new data for the entity.
 	 * @throws {EntityNotFoundError}
 	 */
-	async update (id, newData) {
+	async overwrite (id, data) {
 		const entityList = await this.getList(null);
 		let foundEntity = false;
 
 		entityList.entities.forEach((entity, index) => {
 			if (entity.id === id) {
 				foundEntity = true;
-				entityList.entities[index] = newData;
+				entityList.entities[index] = data;
 			}
 		});
 

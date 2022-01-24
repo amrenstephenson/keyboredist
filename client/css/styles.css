@@ -23,6 +23,11 @@ button {
 	border: none;
 }
 
+.add-button {
+	height: 2em;
+	width: 2em;
+}
+
 .flex-grow {
 	flex: 1;
 }
