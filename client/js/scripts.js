@@ -161,7 +161,7 @@ async function saveKeyboardClicked () {
 		});
 
 		if (response.status === 200) {
-			showAlert('Saved', 'Your keyboard was updated');
+			showAlert('Saved', 'Your keyboard was updated.');
 		} else {
 			showAlert('Error Saving', await response.text());
 		}
@@ -405,11 +405,18 @@ async function changePage (newPage, updateHistory = true, attempt = 0) {
 			changePage(PAGES.loginPrompt);
 		}
 	} catch {
+		console.log('0');
 		await delay(500);
+		console.log('1');
 		if (attempt > 0) {
-			showAlert('Error Connecting to Server', 'Please try again.', 'Try Again');
+			console.log('A');
+			showAlert('Error Connecting to Server', 'Please try again.', 'Try Again', () => {
+				console.log('B');
+				changePage(newPage, true, attempt + 1);
+			});
+		} else {
+			changePage(newPage, true, attempt + 1);
 		}
-		changePage(newPage, true, attempt + 1);
 	}
 }
 
@@ -418,8 +425,28 @@ function delay (ms) {
 	return new Promise(resolve => setTimeout(resolve, ms));
 }
 
-function showAlert (title, text) {
-	alert(`-- ${title} --\n${text}`);
+function showAlert (title, text, buttonText = 'OK', callback = null) {
+	const elemAlert = document.getElementById('alert');
+	const elemAlertTitle = document.getElementById('alert-title');
+	const elemAlertText = document.getElementById('alert-text');
+	let elemAlertButton = document.getElementById('alert-button');
+
+	elemAlert.classList.remove('dnd');
+
+	elemAlertTitle.innerText = title;
+	elemAlertText.innerText = text;
+	elemAlertButton.innerText = buttonText;
+
+	// Clear event listeners (we then have to get the newly cloned element from the DOM again).
+	clearEventListeners(elemAlertButton);
+	elemAlertButton = document.getElementById('alert-button');
+
+	elemAlertButton.addEventListener('click', () => {
+		elemAlert.classList.add('dnd');
+		if (callback !== null) {
+			callback();
+		}
+	});
 }
 
 function setElemLoading (elemId, isLoading) {
