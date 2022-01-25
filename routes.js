@@ -92,6 +92,8 @@ function registerEasterEgg (app) {
 function handleRouteError (err, entity, resp) {
 	if (err instanceof entities.EntityParentsBadRequestError) {
 		resp.status(400).send(`The ${entity.nameSingular}'s parents were not specified or incorrectly provided.`);
+	} else if (err instanceof entities.EntityNameInvalid) {
+		resp.status(400).send(`That is not a valid name for a ${entity.nameSingular}.`);
 	} else if (err instanceof entities.EntityNotFoundError) {
 		resp.status(404).send(`${entity.nameSingularCap} not found.`);
 	} else if (err instanceof entities.EntityParentNotFoundError) {

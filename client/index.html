@@ -66,9 +66,14 @@
 				</div>
 			</div>
 			<div id="page-users" class="page flex flex-column flex-grow h-100 w-100 pa4">
-				<div class="bb pb3">
-					<h1 id="page-users-name" class="ma0 mb1 fw5">Name</h1>
-					<div class="gray fw4">USER</div>
+				<div class="bb pb3 flex items-end">
+					<div class="flex-grow">
+						<h1 id="page-users-name" class="ma0 mb1 fw5">Name</h1>
+						<div class="gray fw4">USER</div>
+						<div id="page-users-about" class="mt3"></div>
+					</div>
+
+					<a aria-label="Edit about user" class="link-edit-about ma0 f2"><div id="edit-about-button" class="add-button fr bg-yellow square br-100 flex flex-grow justify-center items-center ba bw2">✍</div></a>
 				</div>
 				<div class="ma0 mt3 flex items-center">
 					<h2 class="flex flex-grow mt0 fw5 pb2 fl ma0">- Keyboards -</h2>
@@ -160,7 +165,7 @@
 						</div>
 					</div>
 				</div>
-				<div class="flex flex-column mt3">
+				<div id="keyboard-config" class="flex flex-column mt3">
 					<div></div>
 					<div class="ma0 mt3 flex items-center">
 						<h2 class="flex flex-grow mt0 fw5 pb2 fl ma0">- Configuration -</h2>
@@ -187,7 +192,7 @@
 				</div>
 				<div class="ma0 mt3 flex items-center">
 					<h2 class="flex flex-grow mt0 fw5 pb2 fl ma0">- Comments -</h2>
-					<a aria-label="New comment" class="link-add-comment ma0 f2"><div id="add-comment-button" class="add-button fr bg-yellow square br-100 flex flex-grow justify-center items-center ba bw2">✍</div></a>
+					<a aria-label="New comment" class="link-add-comment ma0 f2"><div id="add-comment-button" class="add-button fr bg-yellow square br-100 flex flex-grow justify-center items-center ba bw2">+</div></a>
 				</div>
 
 				<div id="page-keyboards-children" class="flex-grow"></div>
@@ -217,6 +222,15 @@
 					<div class="pv2 w-100 flex">
 						<input class="flex-grow br3 pa2 bw0 mr3" type="text" id="comment-input" aria-label="Comment input box" />
 						<a id="confirm-add-comment-button" class="no-underline bg-blue fw5 br3 white pa2 hover-bg-dark-blue hover-white-80">Post</a>
+					</div>
+				</div>
+			</div>
+			<div id="page-edit-about" class="page flex flex-grow justify-center items-center h-100 w-100 bg-white">
+				<div class="bg-yellow pa3 br4 ba bw2 ma4">
+					<h1 class="mt0 f3 fw6"><label for="about-input">What would you like in your about user section?</label></h1>
+					<div class="pv2 w-100 flex">
+						<input class="flex-grow br3 pa2 bw0 mr3" type="text" id="about-input" aria-label="About user input box" />
+						<a id="confirm-edit-about-button" class="no-underline bg-blue fw5 br3 white pa2 hover-bg-dark-blue hover-white-80">Update</a>
 					</div>
 				</div>
 			</div>

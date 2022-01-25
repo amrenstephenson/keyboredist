@@ -9,6 +9,7 @@ body {
 	min-height: -webkit-fill-available; /* Fix for mobile Safari */
 	width: 100vw;
 	touch-action: manipulation; /* Disable annoying double tap to zoom on mobile */
+	overflow-x: hidden;
 }
 
 ul {
@@ -43,6 +44,10 @@ button {
 .loading * {
 	animation: fade 1s ease-in infinite;
 	color: transparent;
+}
+
+.loading input {
+	display: none;
 }
 
 @keyframes fade {

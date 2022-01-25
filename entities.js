@@ -37,6 +37,15 @@ class EntityIDGenerationError extends Error {
 	}
 }
 
+// Modified from https://dev.to/lvidakovic/custom-error-types-in-node-js-491a [accessed 13 Dec 2021]
+class EntityNameInvalid extends Error {
+	constructor (message) {
+		super(message);
+		this.name = 'EntityNameInvalid';
+		Error.captureStackTrace(this, EntityNameInvalid);
+	}
+}
+
 /**
  * Represents an entity (e.g. a user/keyboard/comment). The data for the entities are always stored in a JSON file by the end of a function call.
  */
@@ -124,12 +133,19 @@ class Entity {
 		}
 	}
 
+	validateName (name) {
+		if (name === '') {
+			throw new EntityNameInvalid();
+		}
+	}
+
 	/**
 	 * Get a list of all entities.
-	 * @param {Object}
+	 * @param {Object} searchParams
+	 * @param {boolean} includeData Whether to include an entity's data in the results.
 	 * @returns {[Object]}
 	 */
-	async getList (searchParams) {
+	async getList (searchParams, includeData = false) {
 		const fileData = await fs.promises.readFile(this.listPath);
 
 		// If the entity JSON file is empty, initialise it.
@@ -138,6 +154,12 @@ class Entity {
 		}
 
 		const entityList = await JSON.parse(fileData);
+
+		if (!includeData) {
+			entityList.entities.forEach((entity) => {
+				entity.data = undefined;
+			});
+		}
 
 		if (searchParams === null || Object.entries(searchParams).length === 0) {
 			return entityList;
@@ -163,23 +185,23 @@ class Entity {
 	 * @returns {string} The ID of the created entity.
 	 * @throws {EntityParentsBadRequestError}
 	 * @throws {EntityParentNotFoundError}
+	 * @throws {EntityNameInvalid}
+	 * @throws {EntityIDGenerationError}
 	 */
 	async create (entityName, parents) {
 		if (parents === undefined) {
 			parents = {};
 		}
 		await this.validateParents(parents);
-		// TODO this.validateName(entityName);
+		this.validateName(entityName);
 
 		const entityList = await this.getList(null);
 		const entityID = this.getUniqueEntityID(entityList);
 		const children = {};
-		const childrenCounts = {};
 		Object.keys(this.childStructure).forEach(key => {
 			children[key] = [];
-			childrenCounts[key] = 0;
 		});
-		const newEntity = { id: entityID, name: entityName, parents: parents, children: children, childrenCounts: childrenCounts };
+		const newEntity = { id: entityID, name: entityName, parents: parents, children: children };
 		entityList.entities.push(newEntity);
 
 		// Add entity as a child of each of its parents.
@@ -204,7 +226,7 @@ class Entity {
 	 * @throws {EntityNotFoundError}
 	 */
 	async get (id) {
-		const entityList = await this.getList(null);
+		const entityList = await this.getList(null, true);
 
 		for (const index in entityList.entities) {
 			const entity = entityList.entities[index];
@@ -321,3 +343,4 @@ module.exports.EntityNotFoundError = EntityNotFoundError;
 module.exports.EntityParentNotFoundError = EntityParentNotFoundError;
 module.exports.EntityIDGenerationError = EntityIDGenerationError;
 module.exports.EntityParentsBadRequestError = EntityParentsBadRequestError;
+module.exports.EntityNameInvalid = EntityNameInvalid;

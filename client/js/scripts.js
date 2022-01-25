@@ -1,5 +1,5 @@
 const apiURL = 'http://127.0.0.1:8090/api';
-const PAGES = { loginPrompt: 'login-prompt', loginUsername: 'login-username', users: 'users', keyboards: 'keyboards', browseUsers: 'browse-users', browseKeyboards: 'browse-keyboards', profile: 'profile', addKeyboard: 'add-keyboard', addComment: 'add-comment' };
+const PAGES = { loginPrompt: 'login-prompt', loginUsername: 'login-username', users: 'users', keyboards: 'keyboards', browseUsers: 'browse-users', browseKeyboards: 'browse-keyboards', profile: 'profile', addKeyboard: 'add-keyboard', addComment: 'add-comment', editAbout: 'edit-about' };
 
 let currentUserId = localStorage.getItem('currentUserId');
 let currentUserName = localStorage.getItem('currentUserName');
@@ -44,6 +44,10 @@ document.addEventListener('DOMContentLoaded', () => {
 		saveKeyboardClicked();
 	});
 
+	document.getElementById('confirm-edit-about-button').addEventListener('click', async () => {
+		editAboutClicked();
+	});
+
 	document.querySelectorAll('.keyboard-settings').forEach((elem) => {
 		elem.addEventListener('input', () => {
 			updateSynth();
@@ -59,6 +63,8 @@ document.addEventListener('DOMContentLoaded', () => {
 				addKeyboardClicked();
 			} else if (location.pathname.replace('/', '') === PAGES.addComment) {
 				addCommentClicked();
+			} else if (location.pathname.replace('/', '') === PAGES.editAbout) {
+				editAboutClicked();
 			}
 		}
 	});
@@ -115,7 +121,7 @@ function setKeyboardSliders (attack, decay, sustain, release) {
 }
 
 function updateSynth () {
-	const attack = document.getElementById('keyboard-settings-attack').value / 1000;
+	const attack = document.getElementById('keyboard-settings-attack').value / 100;
 	const decay = document.getElementById('keyboard-settings-decay').value / 100;
 	const sustain = document.getElementById('keyboard-settings-sustain').value / 100;
 	const release = document.getElementById('keyboard-settings-release').value / 100;
@@ -145,44 +151,51 @@ async function saveKeyboardClicked () {
 
 	const data = { attack: elemAttack.value, decay: elemDecay.value, sustain: elemSustain.value, release: elemRelease.value };
 
-	const response = await fetch(apiURL + `/keyboards/${lastViewedKeyboardId}`, {
-		method: 'POST',
-		headers: {
-			'Content-Type': 'application/json'
-		},
-		body: JSON.stringify({ data: data })
-	});
+	try {
+		const response = await fetch(apiURL + `/keyboards/${lastViewedKeyboardId}`, {
+			method: 'POST',
+			headers: {
+				'Content-Type': 'application/json'
+			},
+			body: JSON.stringify({ data: data })
+		});
 
-	if (response.status === 200) {
-		showAlert('Saved', 'Your keyboard was updated');
-	} else {
-		showAlert('Error Saving', await response.text());
+		if (response.status === 200) {
+			showAlert('Saved', 'Your keyboard was updated');
+		} else {
+			showAlert('Error Saving', await response.text());
+		}
+	} catch {
+		showAlert('Error Connecting to Server', 'Please try again.');
 	}
 }
 
 async function addKeyboardClicked () {
 	const keyboardName = document.getElementById('keyboard-name-input').value;
 
-	const response = await fetch(apiURL + '/keyboards', {
-		method: 'POST',
-		headers: {
-			'Content-Type': 'application/json'
-		},
-		body: JSON.stringify({ name: keyboardName, parents: { user: currentUserId } })
-	});
+	try {
+		const response = await fetch(apiURL + '/keyboards', {
+			method: 'POST',
+			headers: {
+				'Content-Type': 'application/json'
+			},
+			body: JSON.stringify({ name: keyboardName, parents: { user: currentUserId } })
+		});
 
-	if (response.status === 200) {
-		const keyboard = await response.json();
-		changePage(`${PAGES.keyboards}/${keyboard.id}`);
-	} else {
-		// TODO
-		alert(await response.text());
+		if (response.status === 200) {
+			const keyboard = await response.json();
+			changePage(`${PAGES.keyboards}/${keyboard.id}`);
+		} else {
+			showAlert('Error Creating Keyboard', await response.text());
+		}
+	} catch {
+		showAlert('Error Connecting to Server', 'Please try again.');
 	}
 }
 
 async function addCommentClicked () {
 	if (lastViewedKeyboardId === null) {
-		alert('Error adding comment. Please log in and try again.');
+		showAlert('Error Adding Comment.', 'Please log in and try again.');
 		setLogin(null, null);
 		changePage(PAGES.loginPrompt);
 		return;
@@ -190,52 +203,87 @@ async function addCommentClicked () {
 
 	const comment = document.getElementById('comment-input').value;
 
-	const response = await fetch(apiURL + '/comments', {
-		method: 'POST',
-		headers: {
-			'Content-Type': 'application/json'
-		},
-		body: JSON.stringify({ name: comment, parents: { user: currentUserId, keyboard: lastViewedKeyboardId } })
-	});
+	try {
+		const response = await fetch(`${apiURL}/comments`, {
+			method: 'POST',
+			headers: {
+				'Content-Type': 'application/json'
+			},
+			body: JSON.stringify({ name: comment, parents: { user: currentUserId, keyboard: lastViewedKeyboardId } })
+		});
 
-	if (response.status === 200) {
-		changePage(`${PAGES.keyboards}/${lastViewedKeyboardId}`);
-	} else {
-		// TODO
-		alert(await response.text());
+		if (response.status === 200) {
+			changePage(`${PAGES.keyboards}/${lastViewedKeyboardId}`);
+		} else {
+			showAlert('Error Creating Comment', await response.text());
+		}
+	} catch {
+		showAlert('Error Connecting to Server', 'Please try again.');
+	}
+}
+
+async function editAboutClicked () {
+	if (currentUserId === null) {
+		showAlert('Error Changing About', 'Please log in and try again.');
+		setLogin(null, null);
+		changePage(PAGES.loginPrompt);
+		return;
+	}
+
+	const about = document.getElementById('about-input').value;
+
+	try {
+		const response = await fetch(`${apiURL}/users/${currentUserId}`, {
+			method: 'POST',
+			headers: {
+				'Content-Type': 'application/json'
+			},
+			body: JSON.stringify({ data: about })
+		});
+
+		if (response.status === 200) {
+			changePage(`${PAGES.users}/${currentUserId}`);
+		} else {
+			showAlert('Error Changing About', await response.text());
+		}
+	} catch {
+		showAlert('Error Connecting to Server', 'Please try again.');
 	}
 }
 
 async function loginClicked () {
 	const username = document.getElementById('username-input').value;
-	const response = await fetch(apiURL + '/users?name=' + encodeURIComponent(username));
-	if (response.status === 200) {
-		const jsonData = await response.json();
-		const entities = jsonData.entities;
-		if (entities === undefined || entities[0] === undefined) {
-			const response2 = await fetch(apiURL + '/users', {
-				method: 'POST',
-				headers: {
-					'Content-Type': 'application/json'
-				},
-				body: JSON.stringify({ name: username })
-			});
 
-			if (response2.status === 200) {
-				const user = await response2.json();
-				setLogin(user.id, user.name);
-				changePage(`${PAGES.users}/${user.id}`);
+	try {
+		const response = await fetch(apiURL + '/users?name=' + encodeURIComponent(username));
+		if (response.status === 200) {
+			const jsonData = await response.json();
+			const entities = jsonData.entities;
+			if (entities === undefined || entities[0] === undefined) {
+				const response2 = await fetch(apiURL + '/users', {
+					method: 'POST',
+					headers: {
+						'Content-Type': 'application/json'
+					},
+					body: JSON.stringify({ name: username })
+				});
+
+				if (response2.status === 200) {
+					const user = await response2.json();
+					setLogin(user.id, user.name);
+					changePage(`${PAGES.users}/${user.id}`);
+				} else {
+					showAlert('Error Logging In', await response2.text());
+				}
 			} else {
-			// TODO
-				alert(await response2.text());
+				setLogin(entities[0].id, entities[0].name);
+				changePage(`${PAGES.users}/${currentUserId}`);
 			}
 		} else {
-			setLogin(entities[0].id, entities[0].name);
-			changePage(`${PAGES.users}/${currentUserId}`);
+			showAlert('Error Logging In', await response.text());
 		}
-	} else {
-		// TODO
-		alert(await response.text());
+	} catch {
+		showAlert('Error Connecting to Server', 'Please try again.');
 	}
 }
 
@@ -258,36 +306,15 @@ function setLogin (userId, userName) {
 }
 
 function registerLinks () {
-	document.querySelectorAll(`.link-${PAGES.profile}`).forEach(function (elem) {
-		elem.addEventListener('click', async () => {
-			changePage(PAGES.profile);
+	const defaultLinks = [PAGES.profile, PAGES.loginUsername, PAGES.browseUsers, PAGES.browseKeyboards, PAGES.addKeyboard, PAGES.addComment, PAGES.editAbout];
+	defaultLinks.forEach((link) => {
+		document.querySelectorAll(`.link-${link}`).forEach(function (elem) {
+			elem.addEventListener('click', async () => {
+				changePage(link);
+			});
 		});
 	});
-	document.querySelectorAll(`.link-${PAGES.loginUsername}`).forEach(function (elem) {
-		elem.addEventListener('click', async () => {
-			changePage(PAGES.loginUsername);
-		});
-	});
-	document.querySelectorAll(`.link-${PAGES.browseUsers}`).forEach(function (elem) {
-		elem.addEventListener('click', async () => {
-			changePage(PAGES.browseUsers);
-		});
-	});
-	document.querySelectorAll(`.link-${PAGES.browseKeyboards}`).forEach(function (elem) {
-		elem.addEventListener('click', async () => {
-			changePage(PAGES.browseKeyboards);
-		});
-	});
-	document.querySelectorAll(`.link-${PAGES.addKeyboard}`).forEach(function (elem) {
-		elem.addEventListener('click', async () => {
-			changePage(PAGES.addKeyboard);
-		});
-	});
-	document.querySelectorAll(`.link-${PAGES.addComment}`).forEach(function (elem) {
-		elem.addEventListener('click', async () => {
-			changePage(PAGES.addComment);
-		});
-	});
+
 	document.querySelectorAll('.link-logout').forEach(function (elem) {
 		elem.addEventListener('click', async () => {
 			setLogin(null, null);
@@ -306,69 +333,89 @@ function toTitleCase (str) {
 	);
 }
 
-async function changePage (newPage, updateHistory = true) {
-	if (newPage.startsWith('/')) {
-		newPage = newPage.substring(1);
-	}
-	if (newPage.endsWith('/')) {
-		newPage = newPage.substring(0, newPage.length - 1);
-	}
-
-	// Redirect /profile to the page of the logged in user, or to the login page if the user is not logged in.
-	if (newPage === PAGES.profile) {
-		if (currentUserId === null) {
-			changePage(PAGES.loginPrompt);
-		} else {
-			changePage(`${PAGES.users}/${currentUserId}`);
+async function changePage (newPage, updateHistory = true, attempt = 0) {
+	try {
+		if (newPage.startsWith('/')) {
+			newPage = newPage.substring(1);
 		}
-		return;
-	}
+		if (newPage.endsWith('/')) {
+			newPage = newPage.substring(0, newPage.length - 1);
+		}
 
-	if (newPage === PAGES.loginUsername || newPage === PAGES.loginPrompt) {
-		if (currentUserId !== null) {
-			changePage(`${PAGES.users}/${currentUserId}`);
+		// Redirect /profile to the page of the logged in user, or to the login page if the user is not logged in.
+		if (newPage === PAGES.profile) {
+			if (currentUserId === null) {
+				changePage(PAGES.loginPrompt);
+			} else {
+				changePage(`${PAGES.users}/${currentUserId}`);
+			}
 			return;
 		}
-	}
 
-	const pageComponents = newPage.split('/');
-	const pageRoot = pageComponents[0];
-
-	if (pageRoot === PAGES.keyboards) {
-		lastViewedKeyboardId = pageComponents[1];
-	}
-
-	document.title = `${toTitleCase(pageRoot.replace('-', ' '))} | Keyboredist`;
-
-	let pageFound = false;
-	for (const entry of Object.entries(PAGES)) {
-		if (pageRoot === entry[1]) {
-			pageFound = true;
-		}
-	}
-
-	if (pageFound) {
-		setElemLoading('page-' + pageRoot, true);
-		showPage(pageRoot);
-
-		if (pageRoot === PAGES.users) {
-			await loadEntity('user', 'users', pageComponents[1], 'keyboard', 'keyboards', false, 'comment', 'comments');
-		} else if (pageRoot === PAGES.keyboards) {
-			await loadEntity('keyboard', 'keyboards', pageComponents[1], 'comment', 'comments', true, 'user', 'users');
-		} else if (pageRoot === PAGES.browseUsers) {
-			await loadBrowseUsers();
-		} else if (pageRoot === PAGES.browseKeyboards) {
-			await loadBrowseKeyboards();
+		if (newPage === PAGES.loginUsername || newPage === PAGES.loginPrompt) {
+			if (currentUserId !== null) {
+				changePage(`${PAGES.users}/${currentUserId}`);
+				return;
+			}
 		}
 
-		setElemLoading('page-' + pageRoot, false);
-		if (updateHistory) {
-			window.history.pushState(null, document.title, `/${newPage}`);
+		if (newPage === PAGES.addComment || newPage === PAGES.addKeyboard || newPage === PAGES.editAbout) {
+			if (currentUserId === null) {
+				changePage(PAGES.loginPrompt);
+				return;
+			}
 		}
-	} else {
-		// TODO: 404?
-		changePage(PAGES.loginPrompt);
+
+		const pageComponents = newPage.split('/');
+		const pageRoot = pageComponents[0];
+
+		if (pageRoot === PAGES.keyboards) {
+			lastViewedKeyboardId = pageComponents[1];
+		}
+
+		document.title = `${toTitleCase(pageRoot.replace('-', ' '))} | Keyboredist`;
+
+		let pageFound = false;
+		for (const entry of Object.entries(PAGES)) {
+			if (pageRoot === entry[1]) {
+				pageFound = true;
+			}
+		}
+
+		if (pageFound) {
+			setElemLoading('page-' + pageRoot, true);
+			showPage(pageRoot);
+
+			if (pageRoot === PAGES.users) {
+				await loadEntity('user', 'users', pageComponents[1], 'keyboard', 'keyboards', false, 'comment', 'comments');
+			} else if (pageRoot === PAGES.keyboards) {
+				await loadEntity('keyboard', 'keyboards', pageComponents[1], 'comment', 'comments', true, 'user', 'users');
+			} else if (pageRoot === PAGES.browseUsers) {
+				await loadBrowseUsers();
+			} else if (pageRoot === PAGES.browseKeyboards) {
+				await loadBrowseKeyboards();
+			}
+
+			setElemLoading('page-' + pageRoot, false);
+			if (updateHistory) {
+				window.history.pushState(null, document.title, `/${newPage}`);
+			}
+		} else {
+			setLogin(null, null);
+			changePage(PAGES.loginPrompt);
+		}
+	} catch {
+		await delay(500);
+		if (attempt > 0) {
+			showAlert('Error Connecting to Server', 'Please try again.', 'Try Again');
+		}
+		changePage(newPage, true, attempt + 1);
 	}
+}
+
+// Function from https://www.pentarem.com/blog/how-to-use-settimeout-with-async-await-in-javascript/ [Accessed 25/01/22]
+function delay (ms) {
+	return new Promise(resolve => setTimeout(resolve, ms));
 }
 
 function showAlert (title, text) {
@@ -399,8 +446,10 @@ async function loadEntity (nameSingular, namePlural, entityId, childSingular, ch
 	if (namePlural === 'users') {
 		if (entityId === currentUserId) {
 			document.getElementById('add-keyboard-button').classList.remove('dnd');
+			document.getElementById('edit-about-button').classList.remove('dnd');
 		} else {
 			document.getElementById('add-keyboard-button').classList.add('dnd');
+			document.getElementById('edit-about-button').classList.add('dnd');
 		}
 	}
 
@@ -408,83 +457,103 @@ async function loadEntity (nameSingular, namePlural, entityId, childSingular, ch
 
 	const elemName = document.getElementById(`page-${namePlural}-name`);
 	const elemChildren = document.getElementById(`page-${namePlural}-children`);
+	if (entityResponse.status === 200) {
+		const entity = await entityResponse.json();
 
-	if (entityResponse.status === 404) {
-		elemName.innerText = `${capitalise(nameSingular)} - Not Found`;
-		elemChildren.innerText = `A ${nameSingular} with the ID '${entityId}' could not be found.`;
-		return;
-	} else if (entityResponse.status !== 200) {
-		elemName.innerText = `${capitalise(nameSingular)} - Unknown Error`;
-		elemChildren.innerText = `There was an error getting the information of this ${nameSingular}. Please try again.`;
-		return;
-	}
+		elemName.innerText = `${entity.name}`;
+		clearElem(elemChildren);
 
-	const entity = await entityResponse.json();
+		document.title = `${entity.name} - ${capitalise(namePlural)} | Keyboredist`;
 
-	elemName.innerText = `${entity.name}`;
-	clearElem(elemChildren);
-
-	document.title = `${entity.name} - ${capitalise(namePlural)} | Keyboredist`;
-
-	if (namePlural === 'keyboards') {
-		let elemUser = document.getElementById('page-keyboards-user');
-		const userResponse = await fetch(`${apiURL}/users/${entity.parents.user}`);
-		const user = await userResponse.json();
-		elemUser.innerText = user.name;
-		elemUser.click = null;
-
-		// Clear event listeners (we then have to get the newly cloned element from the DOM again).
-		clearEventListeners(elemUser);
-		elemUser = document.getElementById('page-keyboards-user');
-
-		elemUser.addEventListener('click', async () => {
-			changePage(`users/${user.id}`);
-		});
-
-		if (entity.data !== undefined && entity.data !== {}) {
-			setKeyboardSliders(entity.data.attack, entity.data.decay, entity.data.sustain, entity.data.release);
-		} else {
-			setKeyboardSliders(50, 50, 50, 50);
-		}
-		updateSynth();
-	}
-
-	const childrenIds = entity.children[childPlural];
-	console.log(childrenIds.length);
-
-	if (childrenIds.length === undefined) {
-		elemChildren.innerText = `There was an error getting the list of ${childPlural} for this ${nameSingular}.`;
-	} else if (childrenIds.length === 0) {
-		elemChildren.innerText = `\nThis ${nameSingular} has no ${childPlural}.`;
-	} else {
-		for (const key in childrenIds) {
-			const childId = entity.children[childPlural][key];
-			console.log('Hi');
-
-			const jsonData = await fetch(`${apiURL}/${childPlural}/${childId}`);
-			const child = await jsonData.json();
-
-			if (showParent) {
-				const parentId = child.parents[otherSingular];
-				const jsonData = await fetch(`${apiURL}/${otherPlural}/${parentId}`);
-				const parent = await jsonData.json();
-
-				const elemChild = newListItem(child.name, `- ${parent.name}`);
-				elemChild.addEventListener('click', async () => {
-					changePage(`${otherPlural}/${parent.id}`);
-				});
-				elemChildren.append(elemChild);
+		if (namePlural === 'keyboards') {
+			const elemConfig = document.getElementById('keyboard-config');
+			if (entity.parents.user === currentUserId) {
+				elemConfig.classList.remove('dnd');
 			} else {
-				const childChildren = child.children[otherPlural];
-				const childChildrenCount = childChildren === undefined ? 0 : childChildren.length;
-
-				const commentWord = childChildrenCount === 1 ? otherSingular : otherPlural;
-				const elemChild = newListItem(child.name, `${childChildrenCount} ${commentWord}`);
-				elemChild.addEventListener('click', async () => {
-					changePage(`${childPlural}/${child.id}`);
-				});
-				elemChildren.append(elemChild);
+				elemConfig.classList.add('dnd');
 			}
+
+			let elemUser = document.getElementById('page-keyboards-user');
+			const userResponse = await fetch(`${apiURL}/users/${entity.parents.user}`);
+			const user = await userResponse.json();
+			elemUser.innerText = user.name;
+			elemUser.click = null;
+
+			// Clear event listeners (we then have to get the newly cloned element from the DOM again).
+			clearEventListeners(elemUser);
+			elemUser = document.getElementById('page-keyboards-user');
+
+			elemUser.addEventListener('click', async () => {
+				changePage(`users/${user.id}`);
+			});
+
+			if (entity.data !== undefined && entity.data !== {}) {
+				setKeyboardSliders(entity.data.attack, entity.data.decay, entity.data.sustain, entity.data.release);
+			} else {
+				setKeyboardSliders(50, 50, 50, 50);
+			}
+			updateSynth();
+		} else if (namePlural === 'users') {
+			const elemAbout = document.getElementById('page-users-about');
+			if (entity.data === undefined || entity.data === '') {
+				elemAbout.innerText = 'This user has no custom about section.';
+			} else {
+				elemAbout.innerText = entity.data;
+			}
+		}
+
+		const childrenIds = entity.children[childPlural];
+		console.log(childrenIds.length);
+
+		if (childrenIds.length === undefined) {
+			elemChildren.innerText = `There was an error getting the list of ${childPlural} for this ${nameSingular}.`;
+		} else if (childrenIds.length === 0) {
+			elemChildren.innerText = `\nThis ${nameSingular} has no ${childPlural}.`;
+		} else {
+			for (const key in childrenIds) {
+				const childId = entity.children[childPlural][key];
+				console.log('Hi');
+
+				const jsonData = await fetch(`${apiURL}/${childPlural}/${childId}`);
+				const child = await jsonData.json();
+
+				if (showParent) {
+					const parentId = child.parents[otherSingular];
+					const jsonData = await fetch(`${apiURL}/${otherPlural}/${parentId}`);
+					const parent = await jsonData.json();
+
+					const elemChild = newListItem(child.name, `- ${parent.name}`);
+					elemChild.addEventListener('click', async () => {
+						changePage(`${otherPlural}/${parent.id}`);
+					});
+					elemChildren.append(elemChild);
+				} else {
+					const childChildren = child.children[otherPlural];
+					const childChildrenCount = childChildren === undefined ? 0 : childChildren.length;
+
+					const commentWord = childChildrenCount === 1 ? otherSingular : otherPlural;
+					const elemChild = newListItem(child.name, `${childChildrenCount} ${commentWord}`);
+					elemChild.addEventListener('click', async () => {
+						changePage(`${childPlural}/${child.id}`);
+					});
+					elemChildren.append(elemChild);
+				}
+			}
+		}
+	} else {
+		if (namePlural === 'keyboards') {
+			const elemConfig = document.getElementById('keyboard-config');
+			elemConfig.classList.add('dnd');
+
+			const elemUser = document.getElementById('page-keyboards-user');
+			elemUser.innerText = '?';
+		}
+		if (entityResponse.status === 404) {
+			elemName.innerText = `${capitalise(nameSingular)} - Not Found`;
+			elemChildren.innerText = `A ${nameSingular} with the ID '${entityId}' could not be found.`;
+		} else {
+			elemName.innerText = `${capitalise(nameSingular)} - Unknown Error`;
+			elemChildren.innerText = `There was an error getting the information of this ${nameSingular}. Please try again.`;
 		}
 	}
 }
