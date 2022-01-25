@@ -14,10 +14,14 @@
 		<link rel="stylesheet" href="https://unpkg.com/tachyons@4.12.0/css/tachyons.min.css" />
 
 		<!-- https://icons.getbootstrap.com/ (a set of SVG icons) -->
-		<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.7.2/font/bootstrap-icons.css" />
+		<!-- TODO <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.7.2/font/bootstrap-icons.css" />-->
+
+		<link rel="stylesheet" href="http://127.0.0.1:8090/css/sliders.css" />
+		<script type="module" src="http://127.0.0.1:8090/js/sliders.js"></script>
 
 		<link rel="stylesheet" href="http://127.0.0.1:8090/css/styles.css" />
-		<script src="http://127.0.0.1:8090/js/scripts.js"></script>
+		<script src="https://unpkg.com/tone@14.7.77/build/Tone.js"></script>
+		<script type="module" src="http://127.0.0.1:8090/js/scripts.js"></script>
 	</head>
 
 	<body class="avenir flex flex-column bg-washed-yellow">
@@ -31,7 +35,7 @@
 				</div>
 			</div>
 			<div class="flex items-center dn-l">
-				<a id="mobile-nav-menu-toggle" class="f2">☰</i></a>
+				<a id="mobile-nav-menu-toggle" class="f2">☰</a>
 			</div>
 		</nav>
 
@@ -62,19 +66,104 @@
 				</div>
 			</div>
 			<div id="page-users" class="page flex flex-column flex-grow h-100 w-100 pa4">
-				<div class="bb ma0 mb3 pb2 flex items-center">
-					<h1 id="page-users-name" class="flex flex-grow mt0 fw5 pb2 fl ma0 v-btm">Name</h1>
-					<a aria-label="Create keyboard" class="link-add-keyboard ma0 f2"><span id="add-keyboard-button" class="add-button fr bg-yellow square br-100 flex flex-grow justify-center items-center ba bw2 dnd">+</span></a>
+				<div class="bb pb3">
+					<h1 id="page-users-name" class="ma0 mb1 fw5">Name</h1>
+					<div class="gray fw4">USER</div>
 				</div>
-				<h2 class="ma0 fw4">- Keyboards -</h2>
+				<div class="ma0 mt3 flex items-center">
+					<h2 class="flex flex-grow mt0 fw5 pb2 fl ma0">- Keyboards -</h2>
+					<a aria-label="Create keyboard" class="link-add-keyboard ma0 f2"><div id="add-keyboard-button" class="add-button fr bg-yellow square br-100 flex flex-grow justify-center items-center ba bw2 dnd">+</div></a>
+				</div>
 				<div id="page-users-children" class="flex-grow"></div>
 			</div>
 			<div id="page-keyboards" class="page flex flex-column flex-grow h-100 w-100 pa4">
-				<div class="bb ma0 mb3 pb2 flex items-center">
-					<h1 id="page-keyboards-name" class="flex flex-grow mt0 fw5 pb2 fl ma0 v-btm">Name</h1>
-					<a aria-label="New comment" class="link-add-comment ma0 f2"><span id="add-comment-button" class="add-button fr bg-yellow square br-100 flex flex-grow justify-center items-center ba bw2">✍</span></a>
+				<div class="bb pb3">
+					<h1 id="page-keyboards-name" class="ma0 mb1 fw5">Name</h1>
+					<div class="gray fw4">KEYBOARD by <a id="page-keyboards-user" class="underline blue">Bob</a></div>
 				</div>
-				<h2 class="ma0 fw4">- Comments -</h2>
+				<div class="keyboard flex flex-column h5 mt3 ba bw2">
+					<div class="flex h5 bg-washed-yellow">
+						<div class="flex br bw2 flex-grow key key0">
+							<div class="flex-grow key"></div>
+							<div class="flex-grow key"></div>
+							<div class="flex-grow key h-50 bg-black bb bw2 bl key1"></div>
+						</div>
+						<div class="flex br bw2 flex-grow key key2">
+							<div class="flex-grow key h-50 bg-black bb bw2 br key1"></div>
+							<div class="flex-grow key"></div>
+							<div class="flex-grow key h-50 bg-black bb bw2 bl key3"></div>
+						</div>
+						<div class="flex br bw2 flex-grow key key4">
+							<div class="flex-grow key h-50 bg-black bb bw2 br key3"></div>
+							<div class="flex-grow key"></div>
+							<div class="flex-grow key"></div>
+						</div>
+						<div class="flex br bw2 flex-grow key key5">
+							<div class="flex-grow key"></div>
+							<div class="flex-grow key"></div>
+							<div class="flex-grow key h-50 bg-black bb bw2 bl key6"></div>
+						</div>
+						<div class="flex br bw2 flex-grow key key7">
+							<div class="flex-grow key h-50 bg-black bb bw2 br key6"></div>
+							<div class="flex-grow key"></div>
+							<div class="flex-grow key h-50 bg-black bb bw2 bl key8"></div>
+						</div>
+						<div class="flex br bw2 flex-grow key key9">
+							<div class="flex-grow key h-50 bg-black bb bw2 br key8"></div>
+							<div class="flex-grow key"></div>
+							<div class="flex-grow key h-50 bg-black bb bw2 bl key10"></div>
+						</div>
+						<div class="flex br bw2 flex-grow key key11">
+							<div class="flex-grow key h-50 bg-black bb bw2 br key10"></div>
+							<div class="flex-grow key"></div>
+							<div class="flex-grow key"></div>
+						</div>
+						<div class="flex br bw2 flex-grow key key12">
+							<div class="flex-grow key"></div>
+							<div class="flex-grow key"></div>
+							<div class="flex-grow key h-50 bg-black bb bw2 bl key13"></div>
+						</div>
+						<div class="flex br bw2 flex-grow key key14">
+							<div class="flex-grow key h-50 bg-black bb bw2 br key13"></div>
+							<div class="flex-grow key"></div>
+							<div class="flex-grow key h-50 bg-black bb bw2 bl key15"></div>
+						</div>
+						<div class="flex br bw2 flex-grow key key16">
+							<div class="flex-grow key h-50 bg-black bb bw2 br key15"></div>
+							<div class="flex-grow key"></div>
+							<div class="flex-grow key"></div>
+						</div>
+						<div class="flex br bw2 flex-grow key key17">
+							<div class="flex-grow key"></div>
+							<div class="flex-grow key"></div>
+							<div class="flex-grow key h-50 bg-black bb bw2 bl key18"></div>
+						</div>
+						<div class="flex br bw2 flex-grow key key19">
+							<div class="flex-grow key h-50 bg-black bb bw2 br key18"></div>
+							<div class="flex-grow key"></div>
+							<div class="flex-grow key h-50 bg-black bb bw2 bl key20"></div>
+						</div>
+						<div class="flex br bw2 flex-grow key key21">
+							<div class="flex-grow key h-50 bg-black bb bw2 br key20"></div>
+							<div class="flex-grow key"></div>
+							<div class="flex-grow key h-50 bg-black bb bw2 bl key22"></div>
+						</div>
+						<div class="flex br bw2 flex-grow key key23">
+							<div class="flex-grow key h-50 bg-black bb bw2 br key22"></div>
+							<div class="flex-grow key"></div>
+							<div class="flex-grow key"></div>
+						</div>
+						<div class="flex-grow key key24"></div>
+					</div>
+				</div>
+				<div class="mt3">
+					<input type="range" min="1" max="100" value="50" class="styled-slider slider-progress" id="myRange" />
+				</div>
+				<div class="ma0 mt3 flex items-center">
+					<h2 class="flex flex-grow mt0 fw5 pb2 fl ma0">- Comments -</h2>
+					<a aria-label="New comment" class="link-add-comment ma0 f2"><div id="add-comment-button" class="add-button fr bg-yellow square br-100 flex flex-grow justify-center items-center ba bw2">✍</div></a>
+				</div>
+
 				<div id="page-keyboards-children" class="flex-grow"></div>
 			</div>
 			<div id="page-browse-users" class="page flex flex-column flex-grow h-100 w-100 pa4">

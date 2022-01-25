@@ -37,9 +37,50 @@ document.addEventListener('DOMContentLoaded', () => {
 	});
 
 	window.addEventListener('popstate', function (event) {
-		changePage(location.pathname);
+		changePage(location.pathname, false);
 	});
+
+	registerPianoKeyboard();
 });
+
+function registerPianoKeyboard () {
+	const synth = new Tone.Synth(
+		{
+			oscillator: {
+				type: 'triangle'
+			},
+			envelope: {
+				attack: 0.01,
+				decay: 0.5,
+				sustain: 1,
+				release: 1
+			}
+		}
+	).toDestination();
+	const notes = ['C4', 'C#4', 'D4', 'D#4', 'E4', 'F4', 'F#4', 'G4', 'G#4', 'A4', 'A#4', 'B4', 'C5', 'C#5', 'D5', 'D#5', 'E5', 'F5', 'F#5', 'G5', 'G#5', 'A5', 'A#5', 'B5', 'C6'];
+
+	notes.forEach((note, i) => {
+		document.querySelectorAll(`.key${i}`).forEach((elemKey) => {
+			elemKey.addEventListener('mousedown', (event) => {
+				synth.triggerAttack(note);
+				event.stopPropagation();
+				document.querySelectorAll(`.key${i}`).forEach((elemPressed) => {
+					elemPressed.classList.add('key-pressed');
+					if (!elemPressed.classList.contains('bg-black')) {
+						elemPressed.parentNode.classList.add('key-pressed');
+					}
+				});
+			});
+		});
+	});
+
+	document.addEventListener('mouseup', (event) => {
+		synth.triggerRelease();
+		document.querySelectorAll('.key-pressed').forEach((elemKey) => {
+			elemKey.classList.remove('key-pressed');
+		});
+	});
+}
 
 async function addKeyboardClicked () {
 	const keyboardName = document.getElementById('keyboard-name-input').value;
@@ -187,7 +228,7 @@ function toTitleCase (str) {
 	);
 }
 
-async function changePage (newPage) {
+async function changePage (newPage, updateHistory = true) {
 	if (newPage.startsWith('/')) {
 		newPage = newPage.substring(1);
 	}
@@ -219,7 +260,7 @@ async function changePage (newPage) {
 		lastViewedKeyboardId = pageComponents[1];
 	}
 
-	document.title = `${toTitleCase(pageRoot.replace('-', ' '))} | Keyboardist`;
+	document.title = `${toTitleCase(pageRoot.replace('-', ' '))} | Keyboredist`;
 
 	let pageFound = false;
 	for (const entry of Object.entries(PAGES)) {
@@ -239,11 +280,13 @@ async function changePage (newPage) {
 		} else if (pageRoot === PAGES.browseUsers) {
 			await loadBrowseUsers();
 		} else if (pageRoot === PAGES.browseKeyboards) {
-			loadBrowseKeyboards();
+			await loadBrowseKeyboards();
 		}
 
 		setElemLoading('page-' + pageRoot, false);
-		window.history.pushState(null, document.title, `/${newPage}`);
+		if (updateHistory) {
+			window.history.pushState(null, document.title, `/${newPage}`);
+		}
 	} else {
 		// TODO: 404?
 		changePage(PAGES.loginPrompt);
@@ -263,6 +306,13 @@ function capitalise (string) {
 	return string.substring(0, 1).toUpperCase() + string.substring(1);
 }
 
+// From https://stackoverflow.com/a/64609983/7161247 [License https://creativecommons.org/licenses/by-sa/4.0/] [Accessed 24/01/22]
+function clearEventListeners (element) {
+	const clonedElement = element.cloneNode(true);
+	element.replaceWith(clonedElement);
+	return clonedElement;
+}
+
 async function loadEntity (nameSingular, namePlural, entityId, childSingular, childPlural, showParent, otherSingular, otherPlural) {
 	if (namePlural === 'users') {
 		if (entityId === currentUserId) {
@@ -272,29 +322,46 @@ async function loadEntity (nameSingular, namePlural, entityId, childSingular, ch
 		}
 	}
 
-	const response = await fetch(`${apiURL}/${namePlural}/${entityId}`);
+	const entityResponse = await fetch(`${apiURL}/${namePlural}/${entityId}`);
 
 	const elemName = document.getElementById(`page-${namePlural}-name`);
 	const elemChildren = document.getElementById(`page-${namePlural}-children`);
 
-	if (response.status === 404) {
+	if (entityResponse.status === 404) {
 		elemName.innerText = `${capitalise(nameSingular)} - Not Found`;
 		elemChildren.innerText = `A ${nameSingular} with the ID '${entityId}' could not be found.`;
 		return;
-	} else if (response.status !== 200) {
+	} else if (entityResponse.status !== 200) {
 		elemName.innerText = `${capitalise(nameSingular)} - Unknown Error`;
 		elemChildren.innerText = `There was an error getting the information of this ${nameSingular}. Please try again.`;
 		return;
 	}
 
-	const entity = await response.json();
+	const entity = await entityResponse.json();
 
-	elemName.innerText = entity.name;
-	elemChildren.innerText = '';
+	elemName.innerText = `${entity.name}`;
+	clearElem(elemChildren);
 
-	document.title = `${entity.name} - ${document.title}`;
+	document.title = `${entity.name} - ${capitalise(namePlural)} | Keyboredist`;
+
+	if (namePlural === 'keyboards') {
+		let elemUser = document.getElementById('page-keyboards-user');
+		const userResponse = await fetch(`${apiURL}/users/${entity.parents.user}`);
+		const user = await userResponse.json();
+		elemUser.innerText = user.name;
+		elemUser.click = null;
+
+		// Clear event listeners (we then have to get the newly cloned element from the DOM again).
+		clearEventListeners(elemUser);
+		elemUser = document.getElementById('page-keyboards-user');
+
+		elemUser.addEventListener('click', async () => {
+			changePage(`users/${user.id}`);
+		});
+	}
 
 	const childrenIds = entity.children[childPlural];
+	console.log(childrenIds.length);
 
 	if (childrenIds.length === undefined) {
 		elemChildren.innerText = `There was an error getting the list of ${childPlural} for this ${nameSingular}.`;
@@ -303,6 +370,7 @@ async function loadEntity (nameSingular, namePlural, entityId, childSingular, ch
 	} else {
 		for (const key in childrenIds) {
 			const childId = entity.children[childPlural][key];
+			console.log('Hi');
 
 			const jsonData = await fetch(`${apiURL}/${childPlural}/${childId}`);
 			const child = await jsonData.json();
@@ -332,10 +400,17 @@ async function loadEntity (nameSingular, namePlural, entityId, childSingular, ch
 	}
 }
 
+// Function from https://stackoverflow.com/a/3450726 [License https://creativecommons.org/licenses/by-sa/2.5/] [Accessed 24/01/22]
+function clearElem (elem) {
+	while (elem.firstChild) {
+		elem.removeChild(elem.firstChild);
+	}
+}
+
 async function loadBrowseUsers () {
 	const elemList = document.getElementById('page-browse-users-list');
 
-	elemList.innerHTML = '';
+	clearElem(elemList);
 
 	const response = await fetch(`${apiURL}/users`);
 
@@ -373,7 +448,7 @@ function newListItem (title, text) {
 async function loadBrowseKeyboards () {
 	const elemList = document.getElementById('page-browse-keyboards-list');
 
-	elemList.innerHTML = '';
+	clearElem(elemList);
 
 	const response = await fetch(`${apiURL}/keyboards`);
 

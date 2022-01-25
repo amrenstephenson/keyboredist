@@ -40,11 +40,7 @@ button {
 	display: none !important;
 }
 
-.loading > h1,
-.loading > h2,
-.loading > h3,
-.loading > h4,
-.loading > div {
+.loading * {
 	animation: fade 1s ease-in infinite;
 	color: transparent;
 }
@@ -61,4 +57,25 @@ button {
 	100% {
 		background-color: #fff;
 	}
+}
+
+.keyboard .bg-black {
+	transform: scaleX(1.2);
+	border-width: 4px !important;
+}
+
+.key {
+	border-width: 4px !important;
+}
+
+.key.key-pressed:not(.key .key) {
+	background-color: #e0dece;
+}
+
+.key:not(.key-pressed):not(.key .key) {
+	background-color: #fffceb;
+}
+
+.bg-black:not(.key-pressed) {
+	background-color: #222;
 }
