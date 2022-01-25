@@ -238,12 +238,13 @@ class Entity {
 		throw new EntityNotFoundError();
 	}
 
+	/*
 	/**
 	 * Remove an entity.
 	 * @param {*} id The ID of the entity to remove.
 	 * @throws {EntityNotFoundError}
 	 */
-	async remove (id) {
+	/* async remove (id) {
 		const entityList = await this.getList(null);
 		let foundEntity = false;
 
@@ -259,7 +260,7 @@ class Entity {
 		}
 
 		await this.updateEntityListFile(entityList);
-	}
+	} */
 
 	/**
 	 * Update an entity with new data.

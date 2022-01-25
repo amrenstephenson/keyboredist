@@ -12,6 +12,9 @@ function setTesting (testing) {
 }
 
 function registerFallback (app) {
+	app.get('/api/:any', (req, resp) => {
+		resp.status(404).send('Error 404. Not found.');
+	});
 	app.get(/.*/, (req, resp) => {
 		resp.sendFile(path.join(__dirname, 'client/index.html'));
 	});
@@ -51,14 +54,14 @@ function registerEntity (app, entity) {
 	});
 
 	// Delete entity with given ID.
-	app.delete(`/api/${entity.namePlural}/:id`, async function (req, resp) {
+	/* app.delete(`/api/${entity.namePlural}/:id`, async function (req, resp) {
 		try {
 			await entity.remove(req.params.id);
 			resp.send('Success.');
 		} catch (err) {
 			handleRouteError(err, entity, resp);
 		}
-	});
+	}); */
 
 	// Update existing entity with given ID.
 	app.post(`/api/${entity.namePlural}/:id`, async function (req, resp) {
@@ -101,11 +104,9 @@ function handleRouteError (err, entity, resp) {
 	} else if (err instanceof entities.EntityIDGenerationError) {
 		resp.status(500).send(`Error generating ${entity.nameSingular} ID, please try again.`);
 	} else {
-		/* if (isTesting || true) {
+		if (isTesting) {
 			console.log(err);
-		} */
-		console.log(isTesting); // TODO: REMOVE
-		console.log(err); // TODO: REMOVE
+		}
 		resp.status(500).send('Unknown internal server error.');
 	}
 }
