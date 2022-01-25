@@ -63,7 +63,7 @@ function registerEntity (app, entity) {
 	// Update existing entity with given ID.
 	app.post(`/api/${entity.namePlural}/:id`, async function (req, resp) {
 		try {
-			await entity.overwrite(req.params.id, req.body);
+			await entity.update(req.params.id, req.body.data);
 			resp.send('Success.');
 		} catch (err) {
 			handleRouteError(err, entity, resp);

@@ -6,6 +6,22 @@ let currentUserName = localStorage.getItem('currentUserName');
 
 let lastViewedKeyboardId = null;
 
+// eslint doesn't know about Tone so we ignore the undef warning.
+// eslint-disable-next-line no-undef
+let synth = new Tone.Synth(
+	{
+		oscillator: {
+			type: 'triangle'
+		},
+		envelope: {
+			attack: 0.01,
+			decay: 0.5,
+			sustain: 1,
+			release: 1
+		}
+	}
+).toDestination();
+
 document.addEventListener('DOMContentLoaded', () => {
 	registerMobileNavEvents();
 	registerLinks();
@@ -22,6 +38,17 @@ document.addEventListener('DOMContentLoaded', () => {
 
 	document.getElementById('confirm-add-comment-button').addEventListener('click', async () => {
 		addCommentClicked();
+	});
+
+	document.getElementById('keyboard-save-button').addEventListener('click', async () => {
+		saveKeyboardClicked();
+	});
+
+	document.querySelectorAll('.keyboard-settings').forEach((elem) => {
+		elem.addEventListener('input', () => {
+			updateSynth();
+			console.log('update');
+		});
 	});
 
 	document.addEventListener('keypress', async (key) => {
@@ -44,19 +71,6 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 
 function registerPianoKeyboard () {
-	const synth = new Tone.Synth(
-		{
-			oscillator: {
-				type: 'triangle'
-			},
-			envelope: {
-				attack: 0.01,
-				decay: 0.5,
-				sustain: 1,
-				release: 1
-			}
-		}
-	).toDestination();
 	const notes = ['C4', 'C#4', 'D4', 'D#4', 'E4', 'F4', 'F#4', 'G4', 'G#4', 'A4', 'A#4', 'B4', 'C5', 'C#5', 'D5', 'D#5', 'E5', 'F5', 'F#5', 'G5', 'G#5', 'A5', 'A#5', 'B5', 'C6'];
 
 	notes.forEach((note, i) => {
@@ -80,6 +94,70 @@ function registerPianoKeyboard () {
 			elemKey.classList.remove('key-pressed');
 		});
 	});
+}
+
+function setKeyboardSliders (attack, decay, sustain, release) {
+	const elemAttack = document.getElementById('keyboard-settings-attack');
+	const elemDecay = document.getElementById('keyboard-settings-decay');
+	const elemSustain = document.getElementById('keyboard-settings-sustain');
+	const elemRelease = document.getElementById('keyboard-settings-release');
+
+	elemAttack.value = attack;
+	elemDecay.value = decay;
+	elemSustain.value = sustain;
+	elemRelease.value = release;
+
+	// Update custom graphics:
+	elemAttack.style.setProperty('--value', elemAttack.value);
+	elemDecay.style.setProperty('--value', elemDecay.value);
+	elemSustain.style.setProperty('--value', elemSustain.value);
+	elemRelease.style.setProperty('--value', elemRelease.value);
+}
+
+function updateSynth () {
+	const attack = document.getElementById('keyboard-settings-attack').value / 1000;
+	const decay = document.getElementById('keyboard-settings-decay').value / 100;
+	const sustain = document.getElementById('keyboard-settings-sustain').value / 100;
+	const release = document.getElementById('keyboard-settings-release').value / 100;
+
+	// eslint doesn't know about Tone so we ignore the undef warning.
+	// eslint-disable-next-line no-undef
+	synth = new Tone.Synth(
+		{
+			oscillator: {
+				type: 'triangle'
+			},
+			envelope: {
+				attack: attack,
+				decay: decay,
+				sustain: sustain,
+				release: release
+			}
+		}
+	).toDestination();
+}
+
+async function saveKeyboardClicked () {
+	const elemAttack = document.getElementById('keyboard-settings-attack');
+	const elemDecay = document.getElementById('keyboard-settings-decay');
+	const elemSustain = document.getElementById('keyboard-settings-sustain');
+	const elemRelease = document.getElementById('keyboard-settings-release');
+
+	const data = { attack: elemAttack.value, decay: elemDecay.value, sustain: elemSustain.value, release: elemRelease.value };
+
+	const response = await fetch(apiURL + `/keyboards/${lastViewedKeyboardId}`, {
+		method: 'POST',
+		headers: {
+			'Content-Type': 'application/json'
+		},
+		body: JSON.stringify({ data: data })
+	});
+
+	if (response.status === 200) {
+		showAlert('Saved', 'Your keyboard was updated');
+	} else {
+		showAlert('Error Saving', await response.text());
+	}
 }
 
 async function addKeyboardClicked () {
@@ -293,6 +371,10 @@ async function changePage (newPage, updateHistory = true) {
 	}
 }
 
+function showAlert (title, text) {
+	alert(`-- ${title} --\n${text}`);
+}
+
 function setElemLoading (elemId, isLoading) {
 	const elem = document.getElementById(elemId);
 	if (isLoading) {
@@ -358,6 +440,13 @@ async function loadEntity (nameSingular, namePlural, entityId, childSingular, ch
 		elemUser.addEventListener('click', async () => {
 			changePage(`users/${user.id}`);
 		});
+
+		if (entity.data !== undefined && entity.data !== {}) {
+			setKeyboardSliders(entity.data.attack, entity.data.decay, entity.data.sustain, entity.data.release);
+		} else {
+			setKeyboardSliders(50, 50, 50, 50);
+		}
+		updateSynth();
 	}
 
 	const childrenIds = entity.children[childPlural];
@@ -441,7 +530,7 @@ async function loadBrowseUsers () {
 function newListItem (title, text) {
 	const elemListItem = document.createElement('div');
 	elemListItem.classList.add('pa1', 'bg-yellow', 'ba', 'bw2', 'br4', 'mt2', 'clickable');
-	elemListItem.innerHTML = `<h4 class="ma1">${title}</h4><h5 class="fw4 ma1">${text}</h5>`;
+	elemListItem.innerHTML = `<h3 class="ma1">${title}</h3><h4 class="fw4 ma1">${text}</h4>`;
 	return elemListItem;
 }
 

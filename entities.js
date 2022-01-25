@@ -239,21 +239,44 @@ class Entity {
 		await this.updateEntityListFile(entityList);
 	}
 
-	// TODO Check that newData is valid.
 	/**
 	 * Update an entity with new data.
 	 * @param {string} id The ID of the entity to update.
-	 * @param {Object} newData The new data for the entity.
+	 * @param {Object} info The new information for the entity.
 	 * @throws {EntityNotFoundError}
 	 */
-	async overwrite (id, data) {
+	async overwrite (id, info) {
 		const entityList = await this.getList(null);
 		let foundEntity = false;
 
 		entityList.entities.forEach((entity, index) => {
 			if (entity.id === id) {
 				foundEntity = true;
-				entityList.entities[index] = data;
+				entityList.entities[index] = info;
+			}
+		});
+
+		if (!foundEntity) {
+			throw new EntityNotFoundError();
+		}
+
+		await this.updateEntityListFile(entityList);
+	}
+
+	/**
+	 * Update an entity with new data.
+	 * @param {string} id The ID of the entity to update.
+	 * @param {Object} data The new data for the entity.
+	 * @throws {EntityNotFoundError}
+	 */
+	async update (id, data) {
+		const entityList = await this.getList(null);
+		let foundEntity = false;
+
+		entityList.entities.forEach((entity, index) => {
+			if (entity.id === id) {
+				foundEntity = true;
+				entityList.entities[index].data = data;
 			}
 		});
 
