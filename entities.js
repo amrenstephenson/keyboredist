@@ -195,7 +195,7 @@ class Entity {
 		await this.validateParents(parents);
 		this.validateName(entityName);
 
-		const entityList = await this.getList(null);
+		const entityList = await this.getList(null, true);
 		const entityID = this.getUniqueEntityID(entityList);
 		const children = {};
 		Object.keys(this.childStructure).forEach(key => {
@@ -269,7 +269,7 @@ class Entity {
 	 * @throws {EntityNotFoundError}
 	 */
 	async overwrite (id, info) {
-		const entityList = await this.getList(null);
+		const entityList = await this.getList(null, true);
 		let foundEntity = false;
 
 		entityList.entities.forEach((entity, index) => {
@@ -293,7 +293,7 @@ class Entity {
 	 * @throws {EntityNotFoundError}
 	 */
 	async update (id, data) {
-		const entityList = await this.getList(null);
+		const entityList = await this.getList(null, true);
 		let foundEntity = false;
 
 		entityList.entities.forEach((entity, index) => {
