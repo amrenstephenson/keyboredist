@@ -67,7 +67,7 @@ function registerEntity (app, entity) {
 	app.post(`/api/${entity.namePlural}/:id`, async function (req, resp) {
 		try {
 			await entity.update(req.params.id, req.body.data);
-			resp.send('Success.');
+			resp.json({ status: 'success' });
 		} catch (err) {
 			handleRouteError(err, entity, resp);
 		}

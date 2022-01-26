@@ -20,7 +20,8 @@ describe('Test /api/users', () => {
 		test('Filter with no results gives 200.', () => {
 			return request(app)
 				.get('/api/users?name=Alice123')
-				.expect(200);
+				.expect(200)
+				.expect('Content-type', /json/);
 		});
 	});
 
@@ -38,7 +39,8 @@ describe('Test /api/users', () => {
 			return request(app)
 				.post('/api/users')
 				.send(params)
-				.expect(200);
+				.expect(200)
+				.expect('Content-type', /json/);
 		});
 
 		test('Invalid name gives 400.', () => {
@@ -54,7 +56,8 @@ describe('Test /api/users', () => {
 			return request(app)
 				.post('/api/users')
 				.send(params)
-				.expect(200);
+				.expect(200)
+				.expect('Content-type', /json/);
 		});
 
 		test('Parents of array gives 400.', () => {
@@ -80,7 +83,8 @@ describe('Test /api/users', () => {
 			return request(app)
 				.post('/api/users/YoY5-sD7NE')
 				.send(params)
-				.expect(200);
+				.expect(200)
+				.expect('Content-type', /json/);
 		});
 
 		test('Invalid id gives 404.', () => {
@@ -99,7 +103,8 @@ describe('Test /api/keyboards', () => {
 		return request(app)
 			.post('/api/keyboards')
 			.send(params)
-			.expect(200);
+			.expect(200)
+			.expect('Content-type', /json/);
 	});
 
 	test('Relationships of invalid user ID gives 404.', () => {
@@ -151,7 +156,8 @@ describe('Test /api/keyboards', () => {
 			return request(app)
 				.post('/api/keyboards/zumXBAiALS')
 				.send(params)
-				.expect(200);
+				.expect(200)
+				.expect('Content-type', /json/);
 		});
 
 		test('Invalid id gives 404.', () => {
@@ -165,16 +171,10 @@ describe('Test /api/keyboards', () => {
 });
 
 describe('Test /coffee', () => {
-	test('Eater egg gives 418.', () => {
+	test('Easter egg gives 418.', () => {
 		return request(app)
 			.get('/coffee')
 			.expect(418);
-	});
-
-	test('Invalid normal location gives 200.', () => {
-		return request(app)
-			.get('/invalid')
-			.expect(200);
 	});
 });
 
