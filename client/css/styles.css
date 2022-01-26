@@ -12,6 +12,10 @@ body {
 	overflow-x: hidden;
 }
 
+body > div {
+	height: 100vh;
+}
+
 ul {
 	list-style-type: none;
 	margin: 0;
@@ -25,8 +29,8 @@ button {
 }
 
 .add-button {
-	height: 1.2em;
-	width: 1.2em;
+	height: 1.3em;
+	width: 1.3em;
 }
 
 .flex-grow {

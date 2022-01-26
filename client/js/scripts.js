@@ -51,7 +51,6 @@ document.addEventListener('DOMContentLoaded', () => {
 	document.querySelectorAll('.keyboard-settings').forEach((elem) => {
 		elem.addEventListener('input', () => {
 			updateSynth();
-			console.log('update');
 		});
 	});
 
@@ -405,13 +404,9 @@ async function changePage (newPage, updateHistory = true, attempt = 0) {
 			changePage(PAGES.loginPrompt);
 		}
 	} catch {
-		console.log('0');
 		await delay(500);
-		console.log('1');
 		if (attempt > 0) {
-			console.log('A');
 			showAlert('Error Connecting to Server', 'Please try again.', 'Try Again', () => {
-				console.log('B');
 				changePage(newPage, true, attempt + 1);
 			});
 		} else {
@@ -530,7 +525,6 @@ async function loadEntity (nameSingular, namePlural, entityId, childSingular, ch
 		}
 
 		const childrenIds = entity.children[childPlural];
-		console.log(childrenIds.length);
 
 		if (childrenIds.length === undefined) {
 			elemChildren.innerText = `There was an error getting the list of ${childPlural} for this ${nameSingular}.`;
@@ -539,7 +533,6 @@ async function loadEntity (nameSingular, namePlural, entityId, childSingular, ch
 		} else {
 			for (const key in childrenIds) {
 				const childId = entity.children[childPlural][key];
-				console.log('Hi');
 
 				const jsonData = await fetch(`${apiURL}/${childPlural}/${childId}`);
 				const child = await jsonData.json();
