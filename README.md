@@ -13,4 +13,4 @@ Keyboredist is a simple website that allows people to customise and share virtua
 1. Clone the repository, and navigate into it using your preferred shell.
 2. Install dependencies using `npm install`.
 3. Run the project using `npm start`.
-4. Access the website at [http://localhost:8090](http://localhost:8090).
+4. Access the website at [http://127.0.0.1:8090](http://127.0.0.1:8090).
